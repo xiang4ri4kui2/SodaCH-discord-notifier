@@ -512,7 +512,7 @@ ${message}`
       {
         author: {
           name:
-            `${channel.channelName}のお知らせへ移動する`,
+            videoUrl,
           url:
             videoUrl
         },
