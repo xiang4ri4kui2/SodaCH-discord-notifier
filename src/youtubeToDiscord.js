@@ -447,6 +447,11 @@ async function postToDiscord(
       video.videoId
     );
 
+  const thumbnailUrl =
+    getYouTubeThumbnailUrl(
+      video.videoId
+    );
+
   const message =
     buildNotificationMessage(
       video
@@ -458,7 +463,10 @@ async function postToDiscord(
 
 ${message}
 
-${videoUrl}`
+${videoUrl}
+
+サムネURL:
+${thumbnailUrl}`
       : `${message}
 
 ${videoUrl}`;
@@ -482,18 +490,18 @@ ${videoUrl}`;
     embeds: [
       {
         title:
-          'サムネイル確認',
+          'YouTubeサムネイル',
 
         description:
-          videoUrl,
+          'サムネイル表示テスト',
 
         url: videoUrl,
 
+        color: 16711680,
+
         image: {
           url:
-            getYouTubeThumbnailUrl(
-              video.videoId
-            )
+            thumbnailUrl
         }
       }
     ]
