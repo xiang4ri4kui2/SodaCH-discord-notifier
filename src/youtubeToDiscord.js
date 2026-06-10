@@ -437,7 +437,7 @@ function buildNotificationMessage(
 async function postToDiscord(
   channel,
   video,
-  isInitialTest = false
+   = false
 ) {
   const webhookUrl =
     getWebhookUrl(channel);
@@ -463,10 +463,12 @@ async function postToDiscord(
 
     embeds: [
       {
-        title:
-          isInitialTest
-            ? '[初回テスト通知]'
-            : '',
+        ...(isInitialTest
+          ? {
+              title:
+                '初回テスト通知'
+            }
+          : {}),
 
         description:
           buildNotificationMessage(
