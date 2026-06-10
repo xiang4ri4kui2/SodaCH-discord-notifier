@@ -512,18 +512,15 @@ ${message}`
       {
         author: {
           name:
-            `${channel.channelName}へ移動する`,
+            `${channel.channelName}のお知らせへ移動する`,
           url:
             videoUrl
         },
 
-        title:
-          'YouTubeを開く',
-
         url:
           videoUrl,
 
-        thumbnail: {
+        image: {
           url:
             thumbnailUrl
         },
