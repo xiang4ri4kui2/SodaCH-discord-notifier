@@ -504,6 +504,8 @@ ${message}`
 
     content,
 
+    flags: 4096,
+
     allowed_mentions: {
       parse: []
     },
