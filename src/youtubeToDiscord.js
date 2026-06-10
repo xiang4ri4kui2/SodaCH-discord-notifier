@@ -454,8 +454,14 @@ async function postToDiscord(
 
   const content =
     isInitialTest
-      ? `【初回テスト通知】\n\n${message}`
-      : message;
+      ? `【初回テスト通知】
+
+${message}
+
+${videoUrl}`
+      : `${message}
+
+${videoUrl}`;
 
   const body = {
     username:
@@ -475,6 +481,12 @@ async function postToDiscord(
 
     embeds: [
       {
+        title:
+          'サムネイル確認',
+
+        description:
+          videoUrl,
+
         url: videoUrl,
 
         image: {
