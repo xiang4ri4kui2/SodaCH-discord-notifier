@@ -631,10 +631,19 @@ async function main() {
       `処理開始: ${channel.channelName}`
     );
 
-    const latestItems =
-      await fetchLatestItems(
-        channel.channelId
-      );
+  let latestItems =
+    await fetchLatestItems(
+      channel.channelId
+    );
+
+  if (
+    isInitialRun &&
+    latestItems.length > 0
+  ) {
+    latestItems = [
+      latestItems[0]
+    ];
+  }
 
     for (const item of latestItems) {
       const info =
