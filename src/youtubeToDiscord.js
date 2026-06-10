@@ -445,7 +445,9 @@ ${title}
       );
 
     return `${time}に
+    
 ${title}
+
 が配信終了したソダ～。`;
   }
 
@@ -508,24 +510,26 @@ ${message}`
 
     embeds: [
       {
+        author: {
+          name:
+            `${channel.channelName}へ移動する`,
+          url:
+            videoUrl
+        },
+
         title:
-          '曽田すかい@ワシソダchへ移動する',
+          'YouTubeを開く',
 
         url:
           videoUrl,
-
-        description:
-          '　',
 
         thumbnail: {
           url:
             thumbnailUrl
         },
 
-        image: {
-          url:
-            thumbnailUrl
-        }
+        color:
+          16777215
       }
     ]
   };
