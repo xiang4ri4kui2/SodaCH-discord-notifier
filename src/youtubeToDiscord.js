@@ -143,7 +143,7 @@ function getYouTubeThumbnailUrl(videoId) {
   return (
     'https://i.ytimg.com/vi/' +
     videoId +
-    '/hqdefault.jpg'
+    '/sddefault.jpg'
   );
 }
 
@@ -460,17 +460,10 @@ async function postToDiscord(
   const content =
     isInitialTest
       ? `【初回テスト通知】
-
 ${message}
-
-${videoUrl}
-
-${thumbnailUrl}`
+${videoUrl}`
       : `${message}
-
-${videoUrl}
-
-${thumbnailUrl}`;
+${videoUrl}`;
 
   const body = {
     username:
@@ -486,7 +479,18 @@ ${thumbnailUrl}`;
 
     allowed_mentions: {
       parse: []
-    }
+    },
+
+    embeds: [
+      {
+        url: videoUrl,
+
+        image: {
+          url:
+            thumbnailUrl
+        }
+      }
+    ]
   };
 
   const response =
