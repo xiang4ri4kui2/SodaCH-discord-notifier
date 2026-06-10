@@ -437,7 +437,7 @@ function buildNotificationMessage(
 async function postToDiscord(
   channel,
   video,
-   = false
+  isInitialTest = false
 ) {
   const webhookUrl =
     getWebhookUrl(channel);
@@ -446,6 +446,40 @@ async function postToDiscord(
     getYouTubeVideoUrl(
       video.videoId
     );
+
+  const embed = {
+    description:
+      buildNotificationMessage(
+        video
+      ),
+
+    url: videoUrl,
+
+    image: {
+      url:
+        getYouTubeThumbnailUrl(
+          video.videoId
+        )
+    },
+
+    author: {
+      name:
+        channel.channelName,
+
+      url:
+        getYouTubeChannelUrl(
+          channel.channelId
+        )
+    },
+
+    timestamp:
+      new Date().toISOString()
+  };
+
+  if (isInitialTest) {
+    embed.title =
+      '初回テスト通知';
+  }
 
   const body = {
     username:
@@ -461,43 +495,7 @@ async function postToDiscord(
       parse: []
     },
 
-    embeds: [
-      {
-        ...(isInitialTest
-          ? {
-              title:
-                '初回テスト通知'
-            }
-          : {}),
-
-        description:
-          buildNotificationMessage(
-            video
-          ),
-
-        url: videoUrl,
-
-        image: {
-          url:
-            getYouTubeThumbnailUrl(
-              video.videoId
-            )
-        },
-
-        author: {
-          name:
-            channel.channelName,
-
-          url:
-            getYouTubeChannelUrl(
-              channel.channelId
-            )
-        },
-
-        timestamp:
-          new Date().toISOString()
-      }
-    ]
+    embeds: [embed]
   };
 
   const response =
