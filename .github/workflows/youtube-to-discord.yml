@@ -1,0 +1,43 @@
+name: YouTube to Discord
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7/10 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: youtube-to-discord
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run notifier
+        run: npm start
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+
+      - name: Commit updated videoData
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data/videoData.json
+          git diff --cached --quiet || git commit -m "Update video data"
+          git push
