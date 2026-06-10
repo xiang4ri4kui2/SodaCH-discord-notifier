@@ -465,11 +465,12 @@ ${message}
 
 ${videoUrl}
 
-サムネURL:
 ${thumbnailUrl}`
       : `${message}
 
-${videoUrl}`;
+${videoUrl}
+
+${thumbnailUrl}`;
 
   const body = {
     username:
@@ -485,26 +486,7 @@ ${videoUrl}`;
 
     allowed_mentions: {
       parse: []
-    },
-
-    embeds: [
-      {
-        title:
-          'YouTubeサムネイル',
-
-        description:
-          'サムネイル表示テスト',
-
-        url: videoUrl,
-
-        color: 16711680,
-
-        image: {
-          url:
-            thumbnailUrl
-        }
-      }
-    ]
+    }
   };
 
   const response =
