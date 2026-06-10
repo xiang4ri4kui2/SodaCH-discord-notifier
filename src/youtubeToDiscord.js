@@ -508,9 +508,19 @@ ${message}`
 
     embeds: [
       {
-        title: '　',
+        title:
+          '曽田すかい@ワシソダchへ移動する',
 
-        url: videoUrl,
+        url:
+          videoUrl,
+
+        description:
+          '　',
+
+        thumbnail: {
+          url:
+            thumbnailUrl
+        },
 
         image: {
           url:
