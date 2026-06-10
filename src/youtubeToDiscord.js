@@ -402,36 +402,63 @@ function getWebhookUrl(
 function buildNotificationMessage(
   video
 ) {
-  switch (video.live) {
-    case 'upcoming':
-      return (
-        `${formatDateForMessage(video.scheduledStartTime)}に\n\n` +
-        `「${video.title}」\n\n` +
-        `が配信開始予定ソダ～。`
+  const title =
+    `**${video.title}**`;
+
+  if (
+    video.live ===
+    'upcoming'
+  ) {
+    const time =
+      formatDateForMessage(
+        video.scheduledStartTime
       );
 
-    case 'live':
-      return (
-        `${formatDateForMessage(video.actualStartTime)}に\n\n` +
-        `「${video.title}」\n\n` +
-        `が配信開始されたソダ～。`
-      );
-
-    case 'archive':
-      return (
-        `${formatDateForMessage(video.actualEndTime)}に\n\n` +
-        `「${video.title}」\n\n` +
-        `が配信終了したソダ～。`
-      );
-
-    case 'video':
-    default:
-      return (
-        `${formatDateForMessage(video.published)}に\n\n` +
-        `「${video.title}」\n\n` +
-        `が投稿されソダ～。`
-      );
+    return `${time}に
+${title}
+が配信開始予定ソダ～。`;
   }
+
+  if (
+    video.live ===
+    'live'
+  ) {
+    const time =
+      formatDateForMessage(
+        video.actualStartTime
+      );
+
+    return `${time}に
+${title}
+が配信開始されたソダ～。`;
+  }
+
+  if (
+    video.live ===
+    'archive'
+  ) {
+    const time =
+      formatDateForMessage(
+        video.actualEndTime ||
+        video.actualStartTime ||
+        video.sortTime
+      );
+
+    return `${time}に
+${title}
+が配信終了したソダ～。`;
+  }
+
+  const time =
+    formatDateForMessage(
+      video.published ||
+      video.updated ||
+      video.sortTime
+    );
+
+  return `${time}に
+${title}
+が投稿されたソダ～。`;
 }
 
 async function postToDiscord(
@@ -460,10 +487,8 @@ async function postToDiscord(
   const content =
     isInitialTest
       ? `【初回テスト通知】
-${message}
-${videoUrl}`
-      : `${message}
-${videoUrl}`;
+${message}`
+      : message;
 
   const body = {
     username:
@@ -483,6 +508,8 @@ ${videoUrl}`;
 
     embeds: [
       {
+        title: '　',
+
         url: videoUrl,
 
         image: {
