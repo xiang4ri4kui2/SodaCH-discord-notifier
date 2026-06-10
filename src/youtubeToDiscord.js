@@ -447,39 +447,15 @@ async function postToDiscord(
       video.videoId
     );
 
-  const embed = {
-    description:
-      buildNotificationMessage(
-        video
-      ),
+  const message =
+    buildNotificationMessage(
+      video
+    );
 
-    url: videoUrl,
-
-    image: {
-      url:
-        getYouTubeThumbnailUrl(
-          video.videoId
-        )
-    },
-
-    author: {
-      name:
-        channel.channelName,
-
-      url:
-        getYouTubeChannelUrl(
-          channel.channelId
-        )
-    },
-
-    timestamp:
-      new Date().toISOString()
-  };
-
-  if (isInitialTest) {
-    embed.title =
-      '初回テスト通知';
-  }
+  const content =
+    isInitialTest
+      ? `【初回テスト通知】\n\n${message}`
+      : message;
 
   const body = {
     username:
@@ -491,11 +467,24 @@ async function postToDiscord(
 
     tts: false,
 
+    content,
+
     allowed_mentions: {
       parse: []
     },
 
-    embeds: [embed]
+    embeds: [
+      {
+        url: videoUrl,
+
+        image: {
+          url:
+            getYouTubeThumbnailUrl(
+              video.videoId
+            )
+        }
+      }
+    ]
   };
 
   const response =
