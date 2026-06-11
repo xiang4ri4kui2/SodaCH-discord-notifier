@@ -78,5 +78,21 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false
+  },
+  {
+    "videoId": "tlGLO__9G2g",
+    "title": "【デジモン】デジモン復帰おじさん、タイムストレンジャーをやる　２４時間目（デジモンストーリータイムストレンジャー完全初見実況）【タイスト初見プレイ】",
+    "channel": "ワシソダchのお知らせ",
+    "live": "archive",
+    "published": "2026-06-11T16:43:40+00:00",
+    "updated": "2026-06-11T17:43:29+00:00",
+    "scheduledStartTime": "2026-06-11T12:30:00Z",
+    "actualStartTime": "2026-06-11T12:30:40Z",
+    "actualEndTime": "2026-06-11T16:29:11Z",
+    "duration": "03:58:29",
+    "notifiedUpcoming": false,
+    "notifiedLive": false,
+    "notifiedArchive": true,
+    "notifiedVideo": false
   }
 ]
