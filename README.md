@@ -8,5 +8,5 @@
 This notifier sends updates from the YouTube channel "曽田すかい@ワシソダch" to Discord.  
 Currently under trial operation.
 
-YouTube Channel: 
+曽田すかい@ワシソダch: 
 https://www.youtube.com/@BabiSodaSky
