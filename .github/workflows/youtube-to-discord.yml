@@ -1,4 +1,5 @@
 name: YouTube to Discord
+# schedule refresh
 
 on:
   workflow_dispatch:
