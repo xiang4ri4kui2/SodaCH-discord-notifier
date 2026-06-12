@@ -1,9 +1,7 @@
-name: YouTube to Discord Scheduler
+name: YouTube to Discord
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
