@@ -110,5 +110,37 @@
     "notifiedLive": false,
     "notifiedArchive": false,
     "notifiedVideo": false
+  },
+  {
+    "videoId": "kVWMs4K22zo",
+    "title": "【ハカメモ】サイスルどハマりバ美肉おじさん、ハッカーズメモリーをやる　１３時間目（デジモンストーリーハッカーズメモリー完全初見実況）",
+    "channel": "ワシソダchのお知らせ",
+    "live": "archive",
+    "published": "2026-05-29T15:56:03Z",
+    "updated": "2026-05-29T15:56:03Z",
+    "scheduledStartTime": "2026-05-29T12:30:00Z",
+    "actualStartTime": "2026-05-29T12:39:38Z",
+    "actualEndTime": "2026-05-29T15:46:48Z",
+    "duration": "03:06:46",
+    "notifiedUpcoming": false,
+    "notifiedLive": false,
+    "notifiedArchive": true,
+    "notifiedVideo": false
+  },
+  {
+    "videoId": "zwKOJgCBStI",
+    "title": "【SO2R】スターオーシャンセカンドストーリーに青春を捧げたオタクがスタオー２Ｒで久々に星の海へお出かけする　５時間目【ネタバレ有り】",
+    "channel": "ワシソダchのお知らせ",
+    "live": "archive",
+    "published": "2026-05-27T16:57:16Z",
+    "updated": "2026-05-27T16:57:16Z",
+    "scheduledStartTime": "2026-05-27T12:30:00Z",
+    "actualStartTime": "2026-05-27T12:35:34Z",
+    "actualEndTime": "2026-05-27T16:42:39Z",
+    "duration": "04:07:20",
+    "notifiedUpcoming": false,
+    "notifiedLive": false,
+    "notifiedArchive": true,
+    "notifiedVideo": false
   }
 ]
