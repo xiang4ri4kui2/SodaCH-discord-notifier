@@ -94,5 +94,21 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false
+  },
+  {
+    "videoId": "rXc_NsEPVOg",
+    "title": "【ハカメモ】サイスルどハマりバ美肉おじさん、ハッカーズメモリーをやる　１５時間目（デジモンストーリーハッカーズメモリー完全初見実況）",
+    "channel": "ワシソダchのお知らせ",
+    "live": "upcoming",
+    "published": "2026-06-12T03:18:23+00:00",
+    "updated": "2026-06-12T03:18:28+00:00",
+    "scheduledStartTime": "2026-06-12T12:30:00Z",
+    "actualStartTime": "",
+    "actualEndTime": "",
+    "duration": "00:00:00",
+    "notifiedUpcoming": true,
+    "notifiedLive": false,
+    "notifiedArchive": false,
+    "notifiedVideo": false
   }
 ]
