@@ -1,145 +1,279 @@
 import fs from 'node:fs/promises';
 
-const CHANNELS_PATH = 'data/channels.json';
-const VIDEO_DATA_PATH = 'data/videoData.json';
+const CHANNELS_PATH =
+  'data/channels.json';
+
+const VIDEO_DATA_PATH =
+  'data/videoData.json';
 
 const YOUTUBE_RSS_PREFIX =
   'https://www.youtube.com/feeds/videos.xml?channel_id=';
 
-const DISCORD_MIN_INTERVAL_MS = 3000;
+const DISCORD_MIN_INTERVAL_MS =
+  3000;
 
 const sleep = ms =>
-  new Promise(resolve => setTimeout(resolve, ms));
+  new Promise(resolve =>
+    setTimeout(resolve, ms)
+  );
 
-async function readJson(path, fallback) {
+async function readJson(
+  path,
+  fallback
+) {
   try {
-    const text = await fs.readFile(path, 'utf8');
-    return JSON.parse(text);
+    const text =
+      await fs.readFile(
+        path,
+        'utf8'
+      );
+
+    return JSON.parse(
+      text
+    );
   } catch {
     return fallback;
   }
 }
 
-async function writeJson(path, data) {
+async function writeJson(
+  path,
+  data
+) {
   await fs.writeFile(
     path,
-    JSON.stringify(data, null, 2) + '\n',
+    JSON.stringify(
+      data,
+      null,
+      2
+    ) + '\n',
     'utf8'
   );
 }
 
-function getTagText(xml, tagName) {
-  const match = xml.match(
-    new RegExp(
-      `<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`
-    )
-  );
+function getTagText(
+  xml,
+  tagName
+) {
+  const match =
+    xml.match(
+      new RegExp(
+        `<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`
+      )
+    );
 
-  return match ? match[1].trim() : '';
+  return match
+    ? match[1].trim()
+    : '';
 }
 
-function parseYouTubeFeed(xml) {
+function parseYouTubeFeed(
+  xml
+) {
   const entries = [
-    ...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)
+    ...xml.matchAll(
+      /<entry>([\s\S]*?)<\/entry>/g
+    )
   ];
 
   return entries
     .slice(0, 5)
     .map(entryMatch => {
-      const entry = entryMatch[1];
+      const entry =
+        entryMatch[1];
 
       return {
-        title: getTagText(entry, 'title'),
-        updated: getTagText(entry, 'updated'),
-        published: getTagText(entry, 'published'),
-        videoId: getTagText(entry, 'yt:videoId'),
-        source: 'rss'
+        title:
+          getTagText(
+            entry,
+            'title'
+          ),
+
+        updated:
+          getTagText(
+            entry,
+            'updated'
+          ),
+
+        published:
+          getTagText(
+            entry,
+            'published'
+          ),
+
+        videoId:
+          getTagText(
+            entry,
+            'yt:videoId'
+          ),
+
+        source:
+          'rss'
       };
     })
-    .filter(item => item.videoId);
+    .filter(
+      item =>
+        item.videoId
+    );
 }
 
-function formatDateForMessage(dateString) {
-  if (!dateString) {
+function formatDateForMessage(
+  dateString
+) {
+  if (
+    !dateString
+  ) {
     return '';
   }
 
-  const date = new Date(dateString);
+  const date =
+    new Date(
+      dateString
+    );
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return '';
   }
 
   const formatter =
-    new Intl.DateTimeFormat('ja-JP', {
-      timeZone: 'Asia/Tokyo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
+    new Intl.DateTimeFormat(
+      'ja-JP',
+      {
+        timeZone:
+          'Asia/Tokyo',
 
-  return formatter.format(date);
+        year:
+          'numeric',
+
+        month:
+          '2-digit',
+
+        day:
+          '2-digit',
+
+        hour:
+          '2-digit',
+
+        minute:
+          '2-digit',
+
+        hour12:
+          false
+      }
+    );
+
+  return formatter.format(
+    date
+  );
 }
 
-function convertDurationToHHMMSS(duration) {
-  if (!duration || typeof duration !== 'string') {
-    return '00:00:00';
-  }
-
+function convertDurationToHHMMSS(
+  duration
+) {
   if (
-    duration === 'P0D' ||
-    duration === 'PT0S'
+    !duration ||
+    typeof duration !==
+      'string'
   ) {
     return '00:00:00';
   }
 
-  const matches = duration.match(
-    /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/
-  );
-
-  if (!matches) {
+  if (
+    duration ===
+      'P0D' ||
+    duration ===
+      'PT0S'
+  ) {
     return '00:00:00';
   }
 
-  const days = matches[1]
-    ? Number.parseInt(matches[1], 10)
-    : 0;
+  const matches =
+    duration.match(
+      /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/
+    );
 
-  const hours = matches[2]
-    ? Number.parseInt(matches[2], 10)
-    : 0;
+  if (
+    !matches
+  ) {
+    return '00:00:00';
+  }
 
-  const minutes = matches[3]
-    ? Number.parseInt(matches[3], 10)
-    : 0;
+  const days =
+    matches[1]
+      ? Number.parseInt(
+          matches[1],
+          10
+        )
+      : 0;
 
-  const seconds = matches[4]
-    ? Number.parseInt(matches[4], 10)
-    : 0;
+  const hours =
+    matches[2]
+      ? Number.parseInt(
+          matches[2],
+          10
+        )
+      : 0;
+
+  const minutes =
+    matches[3]
+      ? Number.parseInt(
+          matches[3],
+          10
+        )
+      : 0;
+
+  const seconds =
+    matches[4]
+      ? Number.parseInt(
+          matches[4],
+          10
+        )
+      : 0;
 
   const totalHours =
-    days * 24 + hours;
+    days * 24 +
+    hours;
 
   return (
-    String(totalHours).padStart(2, '0') +
+    String(
+      totalHours
+    ).padStart(
+      2,
+      '0'
+    ) +
     ':' +
-    String(minutes).padStart(2, '0') +
+    String(
+      minutes
+    ).padStart(
+      2,
+      '0'
+    ) +
     ':' +
-    String(seconds).padStart(2, '0')
+    String(
+      seconds
+    ).padStart(
+      2,
+      '0'
+    )
   );
 }
 
-function getYouTubeVideoUrl(videoId) {
+function getYouTubeVideoUrl(
+  videoId
+) {
   return (
     'https://www.youtube.com/watch?v=' +
     videoId
   );
 }
 
-function getYouTubeThumbnailUrl(videoId) {
+function getYouTubeThumbnailUrl(
+  videoId
+) {
   return (
     'https://i.ytimg.com/vi/' +
     videoId +
@@ -147,32 +281,45 @@ function getYouTubeThumbnailUrl(videoId) {
   );
 }
 
-function getYouTubeChannelUrl(channelId) {
+function getYouTubeChannelUrl(
+  channelId
+) {
   return (
     'https://www.youtube.com/channel/' +
     channelId
   );
 }
 
-async function fetchLatestItems(channelId) {
+async function fetchLatestItems(
+  channelId
+) {
   const rssUrl =
-    YOUTUBE_RSS_PREFIX + channelId;
+    YOUTUBE_RSS_PREFIX +
+    channelId;
 
   try {
     const response =
-      await fetch(rssUrl);
+      await fetch(
+        rssUrl
+      );
 
-    if (response.ok) {
+    if (
+      response.ok
+    ) {
       const xml =
         await response.text();
 
-      return parseYouTubeFeed(xml);
+      return parseYouTubeFeed(
+        xml
+      );
     }
 
     console.error(
       `RSS取得に失敗しました。channelId=${channelId}, HTTP ${response.status}`
     );
-  } catch (error) {
+  } catch (
+    error
+  ) {
     console.error(
       `RSS取得中にエラー: ${error.message}`
     );
@@ -183,11 +330,44 @@ async function fetchLatestItems(channelId) {
   );
 }
 
+function getWebhookUrls(
+  channel
+) {
+  const secretNames =
+    channel.discordWebhookSecretNames ||
+    [
+      'DISCORD_WEBHOOK_URL_FOR_ME'
+    ];
+
+  const webhookUrls =
+    secretNames.map(
+      secretName => {
+        const webhookUrl =
+          process.env[
+            secretName
+          ];
+
+        if (
+          !webhookUrl
+        ) {
+          throw new Error(
+            `GitHub Secret ${secretName} が設定されていません。`
+          );
+        }
+
+        return webhookUrl;
+      }
+    );
+
+  return webhookUrls;
+}
+
 async function fetchLatestItemsByYouTubeApi(
   channelId
 ) {
   const apiKey =
-    process.env.YOUTUBE_API_KEY;
+    process.env
+      .YOUTUBE_API_KEY;
 
   if (!apiKey) {
     throw new Error(
@@ -195,9 +375,10 @@ async function fetchLatestItemsByYouTubeApi(
     );
   }
 
-  const url = new URL(
-    'https://www.googleapis.com/youtube/v3/search'
-  );
+  const url =
+    new URL(
+      'https://www.googleapis.com/youtube/v3/search'
+    );
 
   url.searchParams.set(
     'part',
@@ -235,36 +416,49 @@ async function fetchLatestItemsByYouTubeApi(
   );
 
   const response =
-    await fetch(url);
+    await fetch(
+      url
+    );
 
   const data =
     await response.json();
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     throw new Error(
       `YouTube Search APIエラー: HTTP ${response.status} ${JSON.stringify(data)}`
     );
   }
 
-  return (data.items || [])
-    .map(item => ({
-      title:
-        item.snippet.title,
+  return (
+    data.items || []
+  )
+    .map(
+      item => ({
+        title:
+          item.snippet
+            .title,
 
-      updated:
-        item.snippet.publishedAt,
+        updated:
+          item.snippet
+            .publishedAt,
 
-      published:
-        item.snippet.publishedAt,
+        published:
+          item.snippet
+            .publishedAt,
 
-      videoId:
-        item.id.videoId,
+        videoId:
+          item.id
+            .videoId,
 
-      source:
-        'youtubeApi'
-    }))
+        source:
+          'youtubeApi'
+      })
+    )
     .filter(
-      item => item.videoId
+      item =>
+        item.videoId
     );
 }
 
@@ -272,7 +466,8 @@ async function fetchVideoInfo(
   videoId
 ) {
   const apiKey =
-    process.env.YOUTUBE_API_KEY;
+    process.env
+      .YOUTUBE_API_KEY;
 
   if (!apiKey) {
     throw new Error(
@@ -280,9 +475,10 @@ async function fetchVideoInfo(
     );
   }
 
-  const url = new URL(
-    'https://www.googleapis.com/youtube/v3/videos'
-  );
+  const url =
+    new URL(
+      'https://www.googleapis.com/youtube/v3/videos'
+    );
 
   url.searchParams.set(
     'part',
@@ -305,12 +501,16 @@ async function fetchVideoInfo(
   );
 
   const response =
-    await fetch(url);
+    await fetch(
+      url
+    );
 
   const data =
     await response.json();
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     throw new Error(
       `YouTube Videos APIエラー: HTTP ${response.status} ${JSON.stringify(data)}`
     );
@@ -318,7 +518,8 @@ async function fetchVideoInfo(
 
   if (
     !data.items ||
-    data.items.length === 0
+    data.items
+      .length === 0
   ) {
     throw new Error(
       `動画情報が見つかりませんでした: ${videoId}`
@@ -334,7 +535,9 @@ async function fetchVideoInfo(
   let liveBroadcastContent =
     'video';
 
-  if (details) {
+  if (
+    details
+  ) {
     if (
       details.actualEndTime
     ) {
@@ -355,48 +558,32 @@ async function fetchVideoInfo(
 
   return {
     title:
-      item.snippet.title,
+      item.snippet
+        .title,
 
     liveBroadcastContent,
 
     scheduledStartTime:
-      details?.scheduledStartTime ||
+      details
+        ?.scheduledStartTime ||
       '',
 
     actualStartTime:
-      details?.actualStartTime ||
+      details
+        ?.actualStartTime ||
       '',
 
     actualEndTime:
-      details?.actualEndTime ||
+      details
+        ?.actualEndTime ||
       '',
 
     duration:
-      item.contentDetails
+      item
+        .contentDetails
         ?.duration ||
       'PT0S'
   };
-}
-
-function getWebhookUrl(
-  channel
-) {
-  const secretName =
-    channel.discordWebhookSecretName ||
-    'DISCORD_WEBHOOK_URL';
-
-  const webhookUrl =
-    process.env[
-      secretName
-    ];
-
-  if (!webhookUrl) {
-    throw new Error(
-      `GitHub Secret ${secretName} が設定されていません。`
-    );
-  }
-
-  return webhookUrl;
 }
 
 function buildNotificationMessage(
@@ -405,62 +592,62 @@ function buildNotificationMessage(
   const title =
     `**${video.title}**`;
 
+  let time = '';
+
+  let actionText = '';
+
   if (
     video.live ===
     'upcoming'
   ) {
-    const time =
+    time =
       formatDateForMessage(
         video.scheduledStartTime
       );
 
-    return `${time}に
-${title}
-が配信開始予定ソダ～。`;
-  }
-
-  if (
+    actionText =
+      'が配信開始予定ソダ～。';
+  } else if (
     video.live ===
     'live'
   ) {
-    const time =
+    time =
       formatDateForMessage(
         video.actualStartTime
       );
 
-    return `${time}に
-${title}
-が配信開始されたソダ～。`;
-  }
-
-  if (
+    actionText =
+      'が配信開始されたソダ～。';
+  } else if (
     video.live ===
     'archive'
   ) {
-    const time =
+    time =
       formatDateForMessage(
         video.actualEndTime ||
         video.actualStartTime ||
         video.sortTime
       );
 
-    return `${time}に
-    
-${title}
+    actionText =
+      'が配信終了したソダ～。';
+  } else {
+    time =
+      formatDateForMessage(
+        video.published ||
+        video.updated ||
+        video.sortTime
+      );
 
-が配信終了したソダ～。`;
+    actionText =
+      'が投稿されたソダ～。';
   }
 
-  const time =
-    formatDateForMessage(
-      video.published ||
-      video.updated ||
-      video.sortTime
-    );
-
   return `${time}に
+
 ${title}
-が投稿されたソダ～。`;
+
+${actionText}`;
 }
 
 async function postToDiscord(
@@ -468,8 +655,10 @@ async function postToDiscord(
   video,
   isInitialTest = false
 ) {
-  const webhookUrl =
-    getWebhookUrl(channel);
+  const webhookUrls =
+    getWebhookUrls(
+      channel
+    );
 
   const videoUrl =
     getYouTubeVideoUrl(
@@ -492,99 +681,115 @@ async function postToDiscord(
 ${message}`
       : message;
 
-  const body = {
-    username:
-      channel.channelName,
-
-    avatar_url:
-      channel.channelIconUrl ||
-      undefined,
-
-    tts: false,
-
-    content,
-
-    flags: 4096,
-
-    allowed_mentions: {
-      parse: []
-    },
-
-    embeds: [
-      {
-        author: {
-          name:
-            videoUrl,
-          url:
-            videoUrl
-        },
-
-        url:
-          videoUrl,
-
-        image: {
-          url:
-            thumbnailUrl
-        },
-
-        color:
-          14037892
-      }
-    ]
-  };
-
-  const response =
-    await fetch(
-      webhookUrl,
-      {
-        method: 'POST',
-
-        headers: {
-          'content-type':
-            'application/json'
-        },
-
-        body:
-          JSON.stringify(
-            body
-          )
-      }
-    );
-
-  if (
-    response.status ===
-    429
+  for (
+    const webhookUrl of webhookUrls
   ) {
-    const retryAfter =
-      Number(
-        response.headers.get(
-          'retry-after'
-        ) || 10
+    const body = {
+      username:
+        channel.channelName,
+
+      avatar_url:
+        channel.channelIconUrl ||
+        undefined,
+
+      tts:
+        false,
+
+      content,
+
+      flags:
+        4096,
+
+      allowed_mentions:
+        {
+          parse:
+            []
+        },
+
+      embeds: [
+        {
+          author:
+            {
+              name:
+                videoUrl,
+
+              url:
+                videoUrl
+            },
+
+          url:
+            videoUrl,
+
+          image:
+            {
+              url:
+                thumbnailUrl
+            },
+
+          color:
+            14037892
+        }
+      ]
+    };
+
+    const response =
+      await fetch(
+        webhookUrl,
+        {
+          method:
+            'POST',
+
+          headers:
+            {
+              'content-type':
+                'application/json'
+            },
+
+          body:
+            JSON.stringify(
+              body
+            )
+        }
       );
 
-    console.error(
-      `Discord rate limit。${retryAfter}秒待機します。`
-    );
+    if (
+      response.status ===
+      429
+    ) {
+      const retryAfter =
+        Number(
+          response.headers.get(
+            'retry-after'
+          ) || 10
+        );
+
+      console.error(
+        `Discord rate limit。${retryAfter}秒待機します。`
+      );
+
+      await sleep(
+        retryAfter *
+          1000
+      );
+
+      return false;
+    }
+
+    if (
+      !response.ok
+    ) {
+      const text =
+        await response.text();
+
+      throw new Error(
+        `Discord投稿失敗: HTTP ${response.status} ${text}`
+      );
+    }
 
     await sleep(
-      retryAfter * 1000
-    );
-
-    return false;
-  }
-
-  if (!response.ok) {
-    const text =
-      await response.text();
-
-    throw new Error(
-      `Discord投稿失敗: HTTP ${response.status} ${text}`
+      DISCORD_MIN_INTERVAL_MS
     );
   }
-
-  await sleep(
-    DISCORD_MIN_INTERVAL_MS
-  );
 
   return true;
 }
@@ -656,7 +861,8 @@ async function main() {
     );
 
   const isInitialRun =
-    videoData.length === 0;
+    videoData.length ===
+    0;
 
   let initialTestPosted =
     false;
@@ -666,19 +872,20 @@ async function main() {
       `処理開始: ${channel.channelName}`
     );
 
-  let latestItems =
-    await fetchLatestItems(
-      channel.channelId
-    );
+    let latestItems =
+      await fetchLatestItems(
+        channel.channelId
+      );
 
-  if (
-    isInitialRun &&
-    latestItems.length > 0
-  ) {
-    latestItems = [
-      latestItems[0]
-    ];
-  }
+    if (
+      isInitialRun &&
+      latestItems.length >
+        0
+    ) {
+      latestItems = [
+        latestItems[0]
+      ];
+    }
 
     for (const item of latestItems) {
       const info =
@@ -693,7 +900,9 @@ async function main() {
             item.videoId
         );
 
-      if (!existing) {
+      if (
+        !existing
+      ) {
         existing =
           createVideoState(
             channel,
@@ -829,7 +1038,9 @@ async function main() {
     'videoData.json を更新しました。'
   );
 
-  if (isInitialRun) {
+  if (
+    isInitialRun
+  ) {
     console.log(
       `初回実行: テスト通知 ${
         initialTestPosted
@@ -840,10 +1051,13 @@ async function main() {
   }
 }
 
-main().catch(error => {
-  console.error(
-    error
-  );
+main().catch(
+  error => {
+    console.error(
+      error
+    );
 
-  process.exitCode = 1;
-});
+    process.exitCode =
+      1;
+  }
+);
