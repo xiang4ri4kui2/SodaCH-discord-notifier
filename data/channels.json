@@ -1,8 +1,11 @@
 [
   {
-    "channelName": "ワシソダchのお知らせ",
+    "channelName": "シン・ワシソダ通知er",
     "channelId": "UCeGpWQL4CSiOFe96wDfOEAQ",
     "channelIconUrl": "https://yt3.ggpht.com/WZsMDQ2k8c90HMceDhVJMCQayp2J0CfAZFrJLxzRIBKFinS0OpyBwaRlwH2MLVz2ynwKc7V8-RU=s88-c-k-c0x00ffffff-no-rj",
-    "discordWebhookSecretName": "DISCORD_WEBHOOK_URL"
+    "discordWebhookSecretNames": [
+      "DISCORD_WEBHOOK_URL_FOR_ME",
+      "DISCORD_WEBHOOK_URL_FOR_SODA"
+    ]
   }
 ]
