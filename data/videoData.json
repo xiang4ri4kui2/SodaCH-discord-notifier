@@ -147,16 +147,16 @@
     "videoId": "6dQ5UY_5GEk",
     "title": "【ダンガンロンパ】死ネタ好きオタクが好き放題語りながらロンパで遊ぶ　３時間目【希望の学園と絶望の高校生】",
     "channel": "シン・ワシソダ通知er",
-    "live": "live",
+    "live": "archive",
     "published": "2026-06-13T09:36:50+00:00",
     "updated": "2026-06-13T09:36:58+00:00",
     "scheduledStartTime": "2026-06-13T12:30:00Z",
     "actualStartTime": "2026-06-13T12:35:21Z",
-    "actualEndTime": "",
-    "duration": "00:00:00",
+    "actualEndTime": "2026-06-13T15:58:22Z",
+    "duration": "03:22:55",
     "notifiedUpcoming": true,
     "notifiedLive": true,
-    "notifiedArchive": false,
+    "notifiedArchive": true,
     "notifiedVideo": false
   }
 ]
