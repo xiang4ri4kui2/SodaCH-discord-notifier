@@ -772,7 +772,7 @@ ${message}`
           1000
       );
 
-      return false;
+      continue;
     }
 
     if (
