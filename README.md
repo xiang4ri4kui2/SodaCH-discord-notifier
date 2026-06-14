@@ -3,11 +3,11 @@
 ## 概要 / Overview
 
 **曽田すかい@ワシソダch** の更新を Discord に通知するための notifier です。<br>
-YouTube RSS を監視し、動画投稿, ショート投稿, ライブ配信を Discord に通知します。<br>
+YouTube RSS を監視し、動画投稿, ショート投稿, ライブ配信, メンバーシップ限定配信を Discord に通知します。<br>
 現在、試験運用中です。<br>
 <br>
 This notifier sends updates from the YouTube channel **"曽田すかい@ワシソダch"** to Discord.<br>
-It monitors the YouTube RSS feed and notifies Discord about video uploads, Shorts uploads, live stream scheduling, stream start, and stream end events.<br>
+It monitors the YouTube RSS feed and notifies Discord about video uploads, Shorts uploads, live stream events, and members-only stream events.<br>
 Currently under trial operation.<br>
 <br>
 ### 対象チャンネル / Target Channel
@@ -21,15 +21,18 @@ https://www.youtube.com/@BabiSodaSky
 
 本 notifier は以下の通知に対応しています。
 
-* 動画投稿通知
-* ショート投稿通知
-* ライブ配信枠（配信予定）の作成通知
-* ライブ配信開始通知
-* ライブ配信終了通知
+* 動画投稿の通知
+* ショート投稿の通知
+* ライブ配信枠（配信予定）の作成の通知
+* ライブ配信開始の通知
+* ライブ配信終了の通知
+* メンバーシップ限定配信枠（配信予定）の作成の通知
+* メンバーシップ限定配信開始の通知
+* メンバーシップ限定配信終了の通知
 
 Discord 通知では、以下を表示します。
 
-* 日時
+* 日時（※メンバーシップ限定配信を除く）
 * タイトル
 * 動画 / 配信 URL
 * サムネイル画像
@@ -41,10 +44,13 @@ This notifier supports the following notifications:
 * Live stream scheduled notifications
 * Live stream start notifications
 * Live stream end notifications
+* Members-only live stream scheduled notifications
+* Members-only live stream start notifications
+* Members-only live stream end notifications
 
 Discord notifications include:
 
-* Date and time
+* Date and time (except members-only streams)
 * Title
 * Video / stream URL
 * Thumbnail image
@@ -61,13 +67,13 @@ To distribute system load, the workflow runs every **15 minutes** at: **07, 22, 
 
 ## ステータス / Status
 
-**現在、試験運用中（Test Operation）**
+**現在、試験運用中**
 
 **Currently under trial operation.**
 
 ---
 
-## Requirements
+## 必要要件 / Requirements
 
 | Item / Secret Name | Version / Description |
 | ------- | ------- |
@@ -78,13 +84,13 @@ To distribute system load, the workflow runs every **15 minutes** at: **07, 22, 
 
 ---
 
-## License
+## ライセンス / License
 
 This project is currently **not licensed**.
 
 ---
 
-## Disclaimer
+## 免責事項 / Disclaimer
 
 本プロジェクトは **非公式のファンメイド** です。<br>
 「曽田すかい@ワシソダch」や関係者とは一切関係ありません。<br>
