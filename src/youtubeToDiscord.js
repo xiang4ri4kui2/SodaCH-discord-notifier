@@ -586,7 +586,7 @@ async function fetchVideoInfo(
   };
 }
 
-function (html) {
+function extractYtInitialData(html) {
   const marker = 'var ytInitialData = ';
   const start = html.indexOf(marker);
 
