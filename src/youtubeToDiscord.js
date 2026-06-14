@@ -635,58 +635,103 @@ function parseScheduledDateJST(text) {
   return utcDate.toISOString();
 }
 
-async function fetchMembersOnlyUpcomingItems(channelId) {
-  const url = `https://www.youtube.com/channel/${channelId}/streams`;
+async function fetchMembersOnlyUpcomingItems(
+  channelId
+) {
+  const url =
+    `https://www.youtube.com/channel/${channelId}/streams`;
 
   let html;
 
   try {
-    const response = await fetch(url, {
-      headers: {
-        'Accept-Language': 'ja-JP',
-        'Cookie': 'CONSENT=YES+1'
-      }
-    });
+    const response =
+      await fetch(url, {
+        headers: {
+          'Accept-Language':
+            'ja-JP',
+
+          'Cookie':
+            'CONSENT=YES+1'
+        }
+      });
 
     if (!response.ok) {
       console.error(
         `streamsページ取得に失敗: HTTP ${response.status}`
       );
+
       return [];
     }
 
-    html = await response.text();
+    html =
+      await response.text();
+
   } catch (error) {
     console.error(
       `streamsページ取得中にエラー: ${error.message}`
     );
+
     return [];
   }
 
-  const data = extractYtInitialData(html);
+  const data =
+    extractYtInitialData(
+      html
+    );
 
   if (!data) {
-    console.error('ytInitialDataの抽出に失敗しました。');
+    console.error(
+      'ytInitialDataの抽出に失敗しました。'
+    );
+
     return [];
   }
 
   let items = [];
 
   try {
-    const tabs = data.contents.twoColumnBrowseResultsRenderer.tabs;
+    const tabs =
+      data.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.tabs || [];
 
-    const streamsTab = tabs.find(
-      tab => tab.tabRenderer?.title === 'ライブ'
-    );
+    const streamsTab =
+      tabs.find(
+        tab =>
+          tab.tabRenderer
+            ?.title ===
+          'ライブ'
+      ) ||
+      tabs.find(
+        tab =>
+          tab.tabRenderer
+            ?.content
+            ?.richGridRenderer
+      );
 
-    const richGrid = streamsTab?.tabRenderer?.content?.richGridRenderer;
+    const richGrid =
+      streamsTab
+        ?.tabRenderer
+        ?.content
+        ?.richGridRenderer;
 
     if (!richGrid) {
+      console.error(
+        'streamsタブが見つかりませんでした。'
+      );
+
       return [];
     }
 
-    items = richGrid.contents || [];
-  } catch {
+    items =
+      richGrid.contents ||
+      [];
+
+  } catch (error) {
+    console.error(
+      `streamsタブ解析中にエラー: ${error.message}`
+    );
+
     return [];
   }
 
@@ -694,60 +739,107 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
 
   for (const item of items) {
     const lockup =
-      item.richItemRenderer?.content?.lockupViewModel;
+      item
+        ?.richItemRenderer
+        ?.content
+        ?.lockupViewModel;
 
     if (!lockup) {
       continue;
     }
 
-    const videoId = lockup.contentId;
+    const videoId =
+      lockup.contentId;
 
     const title =
-      lockup.metadata?.lockupMetadataViewModel?.title?.content;
+      lockup.metadata
+        ?.lockupMetadataViewModel
+        ?.title
+        ?.content;
 
     const metadataRows =
-      lockup.metadata?.lockupMetadataViewModel?.metadata
-        ?.contentMetadataViewModel?.metadataRows || [];
+      lockup.metadata
+        ?.lockupMetadataViewModel
+        ?.metadata
+        ?.contentMetadataViewModel
+        ?.metadataRows ||
+      [];
 
-    let isMembersOnly = false;
-    let scheduledText = '';
+    let isMembersOnly =
+      false;
+
+    let scheduledText =
+      '';
 
     for (const row of metadataRows) {
-      if (row.badges) {
-        for (const badge of row.badges) {
-          if (
-            badge.badgeViewModel?.badgeStyle ===
-            'BADGE_MEMBERS_ONLY'
-          ) {
-            isMembersOnly = true;
-          }
+      const badges =
+        row.badges || [];
+
+      for (const badge of badges) {
+        if (
+          badge
+            ?.badgeViewModel
+            ?.badgeStyle ===
+          'BADGE_MEMBERS_ONLY'
+        ) {
+          isMembersOnly =
+            true;
         }
       }
 
-      if (row.metadataParts) {
+      const metadataParts =
+        row.metadataParts ||
+        [];
+
+      for (const part of metadataParts) {
         const text =
-          row.metadataParts[0]?.text?.content || '';
+          part?.text
+            ?.content ||
+          '';
 
-        if (text.endsWith('に公開予定')) {
-          scheduledText = text;
+        if (
+          text.includes(
+            'に公開予定'
+          )
+        ) {
+          scheduledText =
+            text;
         }
       }
     }
 
-    if (isMembersOnly && scheduledText && videoId && title) {
-      const scheduledStartTime =
-        parseScheduledDateJST(scheduledText);
-
-      if (scheduledStartTime) {
-        results.push({
-          videoId,
-          title,
-          scheduledStartTime,
-          source: 'membersOnlyStreamsPage'
-        });
-      }
+    if (
+      !isMembersOnly ||
+      !scheduledText ||
+      !videoId ||
+      !title
+    ) {
+      continue;
     }
+
+    const scheduledStartTime =
+      parseScheduledDateJST(
+        scheduledText
+      );
+
+    if (
+      !scheduledStartTime
+    ) {
+      continue;
+    }
+
+    results.push({
+      videoId,
+      title,
+      scheduledStartTime,
+      source:
+        'membersOnlyStreamsPage'
+    });
   }
+
+  console.log(
+    `メン限配信枠検知: ${results.length} 件`
+  );
 
   return results;
 }
