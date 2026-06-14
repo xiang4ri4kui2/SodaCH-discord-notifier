@@ -677,12 +677,6 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
       html
     );
 
-  // ===== DEBUG LOG ① =====
-  console.log(
-    'ytInitialData:',
-    !!data
-  );
-
   if (!data) {
     console.error(
       'ytInitialDataの抽出に失敗しました。'
@@ -698,17 +692,6 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
       data.contents
         ?.twoColumnBrowseResultsRenderer
         ?.tabs || [];
-
-    // ===== DEBUG LOG ② =====
-    console.log(
-      'tabs:',
-      tabs.map(
-        tab =>
-          tab.tabRenderer
-            ?.title ||
-          '(no title)'
-      )
-    );
 
     const streamsTab =
       tabs.find(
@@ -731,22 +714,12 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
         ?.richGridRenderer;
 
     if (!richGrid) {
-      console.log(
-        'richGrid not found'
-      );
-
       return [];
     }
 
     items =
       richGrid.contents ||
       [];
-
-    // ===== DEBUG LOG ③ =====
-    console.log(
-      'richGrid items:',
-      items.length
-    );
 
   } catch (error) {
     console.error(
@@ -760,12 +733,6 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
   const results = [];
 
   for (const item of items) {
-
-    // ===== DEBUG LOG ④ =====
-    console.log(
-      'item keys:',
-      Object.keys(item)
-    );
 
     const lockup =
       item
@@ -871,14 +838,6 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
       live =
         'archive';
     }
-
-    console.log({
-      title,
-      videoId,
-      metadataText,
-      scheduledText,
-      live
-    });
 
     if (
       isMembersOnly &&
