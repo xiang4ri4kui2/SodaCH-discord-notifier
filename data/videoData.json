@@ -163,14 +163,14 @@
     "videoId": "pOHEidvX7m4",
     "title": "【メン限】初ガンダムでもSF学園モノとして見てて面白い水星の魔女５～８話を同時視聴しよう！【機動戦士ガンダム水星の魔女初見同時視聴】",
     "channel": "シン・ワシソダ通知er",
-    "live": "upcoming",
+    "live": "live",
     "isMembersOnly": true,
-    "scheduledStartTime": "2026-06-13T20:30:00.000Z",
+    "scheduledStartTime": "",
     "actualStartTime": "",
     "actualEndTime": "",
     "duration": "00:00:00",
     "notifiedUpcoming": true,
-    "notifiedLive": false,
+    "notifiedLive": true,
     "notifiedArchive": false,
     "notifiedVideo": false
   }
