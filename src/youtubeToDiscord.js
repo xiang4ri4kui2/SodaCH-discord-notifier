@@ -586,7 +586,7 @@ async function fetchVideoInfo(
   };
 }
 
-function extractYtInitialData(html) {
+function (html) {
   const marker = 'var ytInitialData = ';
   const start = html.indexOf(marker);
 
@@ -679,6 +679,11 @@ async function fetchMembersOnlyUpcomingItems(
       html
     );
 
+  console.log(
+  'ytInitialData:',
+  !!data
+    );
+
   if (!data) {
     console.error(
       'ytInitialDataの抽出に失敗しました。'
@@ -709,6 +714,15 @@ async function fetchMembersOnlyUpcomingItems(
             ?.richGridRenderer
       );
 
+    console.log(
+  'tabs:',
+  tabs.map(
+    t =>
+      t.tabRenderer
+        ?.title
+        )
+      );
+
     const richGrid =
       streamsTab
         ?.tabRenderer
@@ -723,6 +737,11 @@ async function fetchMembersOnlyUpcomingItems(
       richGrid.contents ||
       [];
 
+    console.log(
+  'richGrid items:',
+  items.length
+    );
+
   } catch {
     return [];
   }
@@ -730,6 +749,12 @@ async function fetchMembersOnlyUpcomingItems(
   const results = [];
 
   for (const item of items) {
+
+      console.log(
+    'item keys:',
+    Object.keys(item)
+    );
+    
     const lockup =
       item
         .richItemRenderer
