@@ -635,9 +635,7 @@ function parseScheduledDateJST(text) {
   return utcDate.toISOString();
 }
 
-async function fetchMembersOnlyUpcomingItems(
-  channelId
-) {
+async function fetchMembersOnlyUpcomingItems(channelId) {
   const url =
     `https://www.youtube.com/channel/${channelId}/streams`;
 
@@ -650,7 +648,7 @@ async function fetchMembersOnlyUpcomingItems(
           'Accept-Language':
             'ja-JP',
 
-          Cookie:
+          'Cookie':
             'CONSENT=YES+1'
         }
       });
@@ -679,10 +677,11 @@ async function fetchMembersOnlyUpcomingItems(
       html
     );
 
+  // ===== DEBUG LOG ① =====
   console.log(
-  'ytInitialData:',
-  !!data
-    );
+    'ytInitialData:',
+    !!data
+  );
 
   if (!data) {
     console.error(
@@ -697,8 +696,19 @@ async function fetchMembersOnlyUpcomingItems(
   try {
     const tabs =
       data.contents
-        .twoColumnBrowseResultsRenderer
-        .tabs;
+        ?.twoColumnBrowseResultsRenderer
+        ?.tabs || [];
+
+    // ===== DEBUG LOG ② =====
+    console.log(
+      'tabs:',
+      tabs.map(
+        tab =>
+          tab.tabRenderer
+            ?.title ||
+          '(no title)'
+      )
+    );
 
     const streamsTab =
       tabs.find(
@@ -714,15 +724,6 @@ async function fetchMembersOnlyUpcomingItems(
             ?.richGridRenderer
       );
 
-    console.log(
-  'tabs:',
-  tabs.map(
-    t =>
-      t.tabRenderer
-        ?.title
-        )
-      );
-
     const richGrid =
       streamsTab
         ?.tabRenderer
@@ -730,6 +731,10 @@ async function fetchMembersOnlyUpcomingItems(
         ?.richGridRenderer;
 
     if (!richGrid) {
+      console.log(
+        'richGrid not found'
+      );
+
       return [];
     }
 
@@ -737,12 +742,18 @@ async function fetchMembersOnlyUpcomingItems(
       richGrid.contents ||
       [];
 
+    // ===== DEBUG LOG ③ =====
     console.log(
-  'richGrid items:',
-  items.length
+      'richGrid items:',
+      items.length
     );
 
-  } catch {
+  } catch (error) {
+    console.error(
+      'tabs解析失敗:',
+      error.message
+    );
+
     return [];
   }
 
@@ -750,11 +761,12 @@ async function fetchMembersOnlyUpcomingItems(
 
   for (const item of items) {
 
-      console.log(
-    'item keys:',
-    Object.keys(item)
+    // ===== DEBUG LOG ④ =====
+    console.log(
+      'item keys:',
+      Object.keys(item)
     );
-    
+
     const lockup =
       item
         .richItemRenderer
@@ -779,8 +791,7 @@ async function fetchMembersOnlyUpcomingItems(
         ?.lockupMetadataViewModel
         ?.metadata
         ?.contentMetadataViewModel
-        ?.metadataRows ||
-      [];
+        ?.metadataRows || [];
 
     let isMembersOnly =
       false;
@@ -792,13 +803,14 @@ async function fetchMembersOnlyUpcomingItems(
       '';
 
     for (
-      const row of metadataRows
+      const row of
+      metadataRows
     ) {
-      if (
-        row.badges
-      ) {
+
+      if (row.badges) {
         for (
-          const badge of row.badges
+          const badge of
+          row.badges
         ) {
           if (
             badge
@@ -840,14 +852,6 @@ async function fetchMembersOnlyUpcomingItems(
       }
     }
 
-    if (
-      !isMembersOnly ||
-      !videoId ||
-      !title
-    ) {
-      continue;
-    }
-
     let live =
       'live';
 
@@ -868,25 +872,34 @@ async function fetchMembersOnlyUpcomingItems(
         'archive';
     }
 
-    const scheduledStartTime =
-      scheduledText
-        ? parseScheduledDateJST(
-            scheduledText
-          )
-        : '';
-
-    results.push({
-      videoId,
-
+    console.log({
       title,
-
-      live,
-
-      scheduledStartTime,
-
-      source:
-        'membersOnlyStreamsPage'
+      videoId,
+      metadataText,
+      scheduledText,
+      live
     });
+
+    if (
+      isMembersOnly &&
+      videoId &&
+      title
+    ) {
+      results.push({
+        videoId,
+        title,
+
+        scheduledStartTime:
+          parseScheduledDateJST(
+            scheduledText
+          ),
+
+        source:
+          'membersOnlyStreamsPage',
+
+        live
+      });
+    }
   }
 
   return results;
