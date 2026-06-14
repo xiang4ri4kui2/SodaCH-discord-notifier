@@ -586,6 +586,172 @@ async function fetchVideoInfo(
   };
 }
 
+function extractYtInitialData(html) {
+  const marker = 'var ytInitialData = ';
+  const start = html.indexOf(marker);
+
+  if (start === -1) {
+    return null;
+  }
+
+  const slice = html.slice(start + marker.length);
+  const end = slice.indexOf(';</script>');
+
+  if (end === -1) {
+    return null;
+  }
+
+  const jsonText = slice.slice(0, end);
+
+  try {
+    return JSON.parse(jsonText);
+  } catch {
+    return null;
+  }
+}
+
+function parseScheduledDateJST(text) {
+  const m = text.match(
+    /^(\d{4})\/(\d{1,2})\/(\d{1,2}) (\d{1,2}):(\d{2}) に公開予定$/
+  );
+
+  if (!m) {
+    return null;
+  }
+
+  const [, y, mo, d, h, mi] = m;
+
+  // JST(UTC+9) -> UTC に変換
+  const utcDate = new Date(
+    Date.UTC(
+      Number(y),
+      Number(mo) - 1,
+      Number(d),
+      Number(h) - 9,
+      Number(mi)
+    )
+  );
+
+  return utcDate.toISOString();
+}
+
+async function fetchMembersOnlyUpcomingItems(channelId) {
+  const url = `https://www.youtube.com/channel/${channelId}/streams`;
+
+  let html;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Accept-Language': 'ja-JP',
+        'Cookie': 'CONSENT=YES+1'
+      }
+    });
+
+    if (!response.ok) {
+      console.error(
+        `streamsページ取得に失敗: HTTP ${response.status}`
+      );
+      return [];
+    }
+
+    html = await response.text();
+  } catch (error) {
+    console.error(
+      `streamsページ取得中にエラー: ${error.message}`
+    );
+    return [];
+  }
+
+  const data = extractYtInitialData(html);
+
+  if (!data) {
+    console.error('ytInitialDataの抽出に失敗しました。');
+    return [];
+  }
+
+  let items = [];
+
+  try {
+    const tabs = data.contents.twoColumnBrowseResultsRenderer.tabs;
+
+    const streamsTab = tabs.find(
+      tab => tab.tabRenderer?.title === 'ライブ'
+    );
+
+    const richGrid = streamsTab?.tabRenderer?.content?.richGridRenderer;
+
+    if (!richGrid) {
+      return [];
+    }
+
+    items = richGrid.contents || [];
+  } catch {
+    return [];
+  }
+
+  const results = [];
+
+  for (const item of items) {
+    const lockup =
+      item.richItemRenderer?.content?.lockupViewModel;
+
+    if (!lockup) {
+      continue;
+    }
+
+    const videoId = lockup.contentId;
+
+    const title =
+      lockup.metadata?.lockupMetadataViewModel?.title?.content;
+
+    const metadataRows =
+      lockup.metadata?.lockupMetadataViewModel?.metadata
+        ?.contentMetadataViewModel?.metadataRows || [];
+
+    let isMembersOnly = false;
+    let scheduledText = '';
+
+    for (const row of metadataRows) {
+      if (row.badges) {
+        for (const badge of row.badges) {
+          if (
+            badge.badgeViewModel?.badgeStyle ===
+            'BADGE_MEMBERS_ONLY'
+          ) {
+            isMembersOnly = true;
+          }
+        }
+      }
+
+      if (row.metadataParts) {
+        const text =
+          row.metadataParts[0]?.text?.content || '';
+
+        if (text.endsWith('に公開予定')) {
+          scheduledText = text;
+        }
+      }
+    }
+
+    if (isMembersOnly && scheduledText && videoId && title) {
+      const scheduledStartTime =
+        parseScheduledDateJST(scheduledText);
+
+      if (scheduledStartTime) {
+        results.push({
+          videoId,
+          title,
+          scheduledStartTime,
+          source: 'membersOnlyStreamsPage'
+        });
+      }
+    }
+  }
+
+  return results;
+}
+
 function buildNotificationMessage(
   video
 ) {
@@ -848,216 +1014,135 @@ function createVideoState(
 }
 
 async function main() {
-  const channels =
-    await readJson(
-      CHANNELS_PATH,
-      []
-    );
+  const channels = await readJson(CHANNELS_PATH, []);
+  const videoData = await readJson(VIDEO_DATA_PATH, []);
 
-  const videoData =
-    await readJson(
-      VIDEO_DATA_PATH,
-      []
-    );
+  const isInitialRun = videoData.length === 0;
 
-  const isInitialRun =
-    videoData.length ===
-    0;
-
-  let initialTestPosted =
-    false;
+  let initialTestPosted = false;
 
   for (const channel of channels) {
-    console.log(
-      `処理開始: ${channel.channelName}`
-    );
+    console.log(`処理開始: ${channel.channelName}`);
 
-    let latestItems =
-      await fetchLatestItems(
-        channel.channelId
-      );
+    let latestItems = await fetchLatestItems(channel.channelId);
 
-    if (
-      isInitialRun &&
-      latestItems.length >
-        0
-    ) {
-      latestItems = [
-        latestItems[0]
-      ];
+    if (isInitialRun && latestItems.length > 0) {
+      latestItems = [latestItems[0]];
     }
 
+    // ↓↓↓ メン限「枠立て」検知（追加） ↓↓↓
+    const membersOnlyItems = await fetchMembersOnlyUpcomingItems(
+      channel.channelId
+    );
+
+    const existingVideoIds = new Set([
+      ...videoData.map(row => row.videoId),
+      ...latestItems.map(item => item.videoId)
+    ]);
+
+    const newMembersOnlyItems = membersOnlyItems.filter(
+      item => !existingVideoIds.has(item.videoId)
+    );
+
+    console.log(
+      `メン限枠立て検知: ${newMembersOnlyItems.length} 件`
+    );
+
+    latestItems = [...latestItems, ...newMembersOnlyItems];
+    // ↑↑↑ ここまで追加 ↑↑↑
+
     for (const item of latestItems) {
-      const info =
-        await fetchVideoInfo(
-          item.videoId
-        );
+      // ↓↓↓ infoの取得方法を分岐（変更） ↓↓↓
+      let info;
 
-      let existing =
-        videoData.find(
-          row =>
-            row.videoId ===
-            item.videoId
-        );
+      if (item.source === 'membersOnlyStreamsPage') {
+        info = {
+          title: item.title,
+          liveBroadcastContent: 'upcoming',
+          scheduledStartTime: item.scheduledStartTime,
+          actualStartTime: '',
+          actualEndTime: '',
+          duration: 'PT0S'
+        };
+      } else {
+        info = await fetchVideoInfo(item.videoId);
+      }
+      // ↑↑↑ ここまで変更 ↑↑↑
 
-      if (
-        !existing
-      ) {
-        existing =
-          createVideoState(
-            channel,
-            item,
-            info
-          );
+      let existing = videoData.find(
+        row => row.videoId === item.videoId
+      );
 
-        videoData.push(
-          existing
-        );
+      if (!existing) {
+        existing = createVideoState(channel, item, info);
+        videoData.push(existing);
       }
 
-      existing.live =
-        info.liveBroadcastContent;
+      existing.live = info.liveBroadcastContent;
+      existing.scheduledStartTime = info.scheduledStartTime;
+      existing.actualStartTime = info.actualStartTime;
+      existing.actualEndTime = info.actualEndTime;
+      existing.duration = convertDurationToHHMMSS(info.duration);
 
-      existing.scheduledStartTime =
-        info.scheduledStartTime;
+      if (isInitialRun && !initialTestPosted) {
+        await postToDiscord(channel, existing, true);
 
-      existing.actualStartTime =
-        info.actualStartTime;
+        initialTestPosted = true;
 
-      existing.actualEndTime =
-        info.actualEndTime;
-
-      existing.duration =
-        convertDurationToHHMMSS(
-          info.duration
-        );
-
-      if (
-        isInitialRun &&
-        !initialTestPosted
-      ) {
-        await postToDiscord(
-          channel,
-          existing,
-          true
-        );
-
-        initialTestPosted =
-          true;
-
-        switch (
-          existing.live
-        ) {
+        switch (existing.live) {
           case 'upcoming':
-            existing.notifiedUpcoming =
-              true;
+            existing.notifiedUpcoming = true;
             break;
 
           case 'live':
-            existing.notifiedLive =
-              true;
+            existing.notifiedLive = true;
             break;
 
           case 'archive':
-            existing.notifiedArchive =
-              true;
+            existing.notifiedArchive = true;
             break;
 
           default:
-            existing.notifiedVideo =
-              true;
+            existing.notifiedVideo = true;
         }
 
         continue;
       }
 
-      if (
-        existing.live ===
-          'video' &&
-        !existing.notifiedVideo
-      ) {
-        await postToDiscord(
-          channel,
-          existing
-        );
-
-        existing.notifiedVideo =
-          true;
+      if (existing.live === 'video' && !existing.notifiedVideo) {
+        await postToDiscord(channel, existing);
+        existing.notifiedVideo = true;
       }
 
-      if (
-        existing.live ===
-          'upcoming' &&
-        !existing.notifiedUpcoming
-      ) {
-        await postToDiscord(
-          channel,
-          existing
-        );
-
-        existing.notifiedUpcoming =
-          true;
+      if (existing.live === 'upcoming' && !existing.notifiedUpcoming) {
+        await postToDiscord(channel, existing);
+        existing.notifiedUpcoming = true;
       }
 
-      if (
-        existing.live ===
-          'live' &&
-        !existing.notifiedLive
-      ) {
-        await postToDiscord(
-          channel,
-          existing
-        );
-
-        existing.notifiedLive =
-          true;
+      if (existing.live === 'live' && !existing.notifiedLive) {
+        await postToDiscord(channel, existing);
+        existing.notifiedLive = true;
       }
 
-      if (
-        existing.live ===
-          'archive' &&
-        !existing.notifiedArchive
-      ) {
-        await postToDiscord(
-          channel,
-          existing
-        );
-
-        existing.notifiedArchive =
-          true;
+      if (existing.live === 'archive' && !existing.notifiedArchive) {
+        await postToDiscord(channel, existing);
+        existing.notifiedArchive = true;
       }
     }
   }
 
-  await writeJson(
-    VIDEO_DATA_PATH,
-    videoData
-  );
+  await writeJson(VIDEO_DATA_PATH, videoData);
 
-  console.log(
-    'videoData.json を更新しました。'
-  );
+  console.log('videoData.json を更新しました。');
 
-  if (
-    isInitialRun
-  ) {
+  if (isInitialRun) {
     console.log(
-      `初回実行: テスト通知 ${
-        initialTestPosted
-          ? '成功'
-          : '未送信'
-      }`
+      `初回実行: テスト通知 ${initialTestPosted ? '成功' : '未送信'}`
     );
   }
 }
 
-main().catch(
-  error => {
-    console.error(
-      error
-    );
-
-    process.exitCode =
-      1;
-  }
-);
+main().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});
