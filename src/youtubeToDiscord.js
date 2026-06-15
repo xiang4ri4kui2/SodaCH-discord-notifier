@@ -714,6 +714,7 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
         ?.richGridRenderer;
 
     if (!richGrid) {
+      console.error('streamsタブが見つかりませんでした。');
       return [];
     }
 
