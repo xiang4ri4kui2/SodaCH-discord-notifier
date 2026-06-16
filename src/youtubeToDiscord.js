@@ -281,15 +281,6 @@ function getYouTubeThumbnailUrl(
   );
 }
 
-function getYouTubeChannelUrl(
-  channelId
-) {
-  return (
-    'https://www.youtube.com/channel/' +
-    channelId
-  );
-}
-
 async function fetchLatestItems(
   channelId
 ) {
@@ -611,7 +602,7 @@ function extractYtInitialData(html) {
 }
 
 function parseScheduledDateJST(text) {
-  const m = text.match(
+  const m = text.trim().match(
     /^(\d{4})\/(\d{1,2})\/(\d{1,2}) (\d{1,2}):(\d{2}) に公開予定$/
   );
 
@@ -1196,8 +1187,7 @@ async function main() {
     );
 
   const isInitialRun =
-    videoData.length ===
-    0;
+    videoData.length === 0;
 
   let initialTestPosted =
     false;
@@ -1205,6 +1195,7 @@ async function main() {
   for (
     const channel of channels
   ) {
+
     console.log(
       `処理開始: ${channel.channelName}`
     );
@@ -1216,24 +1207,26 @@ async function main() {
 
     if (
       isInitialRun &&
-      latestItems.length >
-        0
+      latestItems.length > 0
     ) {
       latestItems = [
         latestItems[0]
       ];
     }
 
-    // メンバーシップ限定配信の取得
+    // ==================================
+    // メンバーシップ限定配信取得
+    // ==================================
+
     const membersOnlyItems =
       await fetchMembersOnlyUpcomingItems(
         channel.channelId
       );
 
-    // 新規枠 + トラッキング中を再監視
     const trackedMembersOnlyItems =
       membersOnlyItems.filter(
         item => {
+
           const existing =
             videoData.find(
               row =>
@@ -1241,23 +1234,43 @@ async function main() {
                 item.videoId
             );
 
-          // 完全新規
-          if (
-            !existing
-          ) {
-            // upcoming のみ採用
-            // （古いarchive誤通知防止）
-            return (
+          // 新規
+          if (!existing) {
+
+            // upcoming は採用
+            if (
               item.live ===
               'upcoming'
-            );
+            ) {
+              return true;
+            }
+
+            // live は救済採用
+            // （upcoming取り逃し対策）
+            if (
+              item.live ===
+              'live'
+            ) {
+
+              console.warn(
+                `メン限upcoming取り逃し救済: ` +
+                `${item.videoId}`
+              );
+
+              return true;
+            }
+
+            // archive は無視
+            return false;
           }
 
-          // 既存トラッキング中
+          // tracking中のみ再チェック
           return (
-            existing.isMembersOnly ===
+            existing
+              .isMembersOnly ===
               true &&
-            !existing.notifiedArchive
+            !existing
+              .notifiedArchive
           );
         }
       );
@@ -1274,14 +1287,17 @@ async function main() {
     for (
       const item of latestItems
     ) {
+
       let info;
 
-      // メン限は
-      // /streams情報を採用
+      // ==========================
+      // メン限（streams HTML）
+      // ==========================
       if (
         item.source ===
         'membersOnlyStreamsPage'
       ) {
+
         info = {
           title:
             item.title,
@@ -1290,7 +1306,8 @@ async function main() {
             item.live,
 
           scheduledStartTime:
-            item.scheduledStartTime ||
+            item
+              .scheduledStartTime ||
             '',
 
           actualStartTime:
@@ -1304,7 +1321,10 @@ async function main() {
         };
 
       } else {
-        // 通常動画・通常配信
+
+        // ==========================
+        // 通常動画（YouTube API）
+        // ==========================
         info =
           await fetchVideoInfo(
             item.videoId
@@ -1318,10 +1338,8 @@ async function main() {
             item.videoId
         );
 
-      // 新規登録
-      if (
-        !existing
-      ) {
+      if (!existing) {
+
         existing =
           createVideoState(
             channel,
@@ -1334,7 +1352,90 @@ async function main() {
         );
       }
 
+      // ==================================
+      // 保険ログ
+      // ==================================
+
+      // LIVE遷移失敗warn
+      // （予定時刻超過なのにupcoming）
+      if (
+        existing
+          .isMembersOnly ===
+          true &&
+        existing.live ===
+          'upcoming' &&
+        info
+          .liveBroadcastContent ===
+          'upcoming' &&
+        existing
+          .scheduledStartTime &&
+        new Date(
+          existing
+            .scheduledStartTime
+        ) < new Date()
+      ) {
+
+        console.warn(
+          `メン限LIVE遷移未確認: ` +
+          `${existing.videoId}` +
+          ` (予定時刻: ` +
+          `${existing.scheduledStartTime})`
+        );
+      }
+
+      // ARCHIVE遷移失敗warn
+      // （12時間以上live固定）
+      if (
+        existing
+          .isMembersOnly ===
+          true &&
+        existing.live ===
+          'live' &&
+        info
+          .liveBroadcastContent ===
+          'live' &&
+        existing
+          .liveDetectedAt
+      ) {
+
+        const detectedAt =
+          new Date(
+            existing
+              .liveDetectedAt
+          );
+
+        const now =
+          new Date();
+
+        const hoursElapsed =
+          (
+            now -
+            detectedAt
+          ) /
+          (
+            1000 *
+            60 *
+            60
+          );
+
+        if (
+          hoursElapsed >=
+          12
+        ) {
+
+          console.warn(
+            `メン限ARCHIVE遷移未確認: ` +
+            `${existing.videoId}` +
+            ` (LIVE検知時刻: ` +
+            `${existing.liveDetectedAt})`
+          );
+        }
+      }
+
+      // ==================================
       // 状態更新
+      // ==================================
+
       existing.live =
         info.liveBroadcastContent;
 
@@ -1352,11 +1453,15 @@ async function main() {
           info.duration
         );
 
-      // 初回実行時
+      // ==================================
+      // 初回テスト通知
+      // ==================================
+
       if (
         isInitialRun &&
         !initialTestPosted
       ) {
+
         await postToDiscord(
           channel,
           existing,
@@ -1369,41 +1474,53 @@ async function main() {
         switch (
           existing.live
         ) {
+
           case 'upcoming':
-            existing.notifiedUpcoming =
+            existing
+              .notifiedUpcoming =
               true;
             break;
 
           case 'live':
-            existing.notifiedLive =
+            existing
+              .notifiedLive =
               true;
             break;
 
           case 'archive':
-            existing.notifiedArchive =
+            existing
+              .notifiedArchive =
               true;
             break;
 
           default:
-            existing.notifiedVideo =
+            existing
+              .notifiedVideo =
               true;
         }
 
         continue;
       }
 
-      // 通常動画
+      // ==================================
+      // 通常通知
+      // ==================================
+
+      // 動画投稿
       if (
         existing.live ===
           'video' &&
-        !existing.notifiedVideo
+        !existing
+          .notifiedVideo
       ) {
+
         await postToDiscord(
           channel,
           existing
         );
 
-        existing.notifiedVideo =
+        existing
+          .notifiedVideo =
           true;
       }
 
@@ -1411,14 +1528,17 @@ async function main() {
       if (
         existing.live ===
           'upcoming' &&
-        !existing.notifiedUpcoming
+        !existing
+          .notifiedUpcoming
       ) {
+
         await postToDiscord(
           channel,
           existing
         );
 
-        existing.notifiedUpcoming =
+        existing
+          .notifiedUpcoming =
           true;
       }
 
@@ -1426,29 +1546,49 @@ async function main() {
       if (
         existing.live ===
           'live' &&
-        !existing.notifiedLive
+        !existing
+          .notifiedLive
       ) {
+
         await postToDiscord(
           channel,
           existing
         );
 
-        existing.notifiedLive =
+        existing
+          .notifiedLive =
           true;
+
+        // メン限のみ
+        // live検知時刻保存
+        if (
+          existing
+            .isMembersOnly ===
+          true
+        ) {
+
+          existing
+            .liveDetectedAt =
+            new Date()
+              .toISOString();
+        }
       }
 
       // 配信終了
       if (
         existing.live ===
           'archive' &&
-        !existing.notifiedArchive
+        !existing
+          .notifiedArchive
       ) {
+
         await postToDiscord(
           channel,
           existing
         );
 
-        existing.notifiedArchive =
+        existing
+          .notifiedArchive =
           true;
       }
     }
@@ -1466,6 +1606,7 @@ async function main() {
   if (
     isInitialRun
   ) {
+
     console.log(
       `初回実行: テスト通知 ${
         initialTestPosted
@@ -1478,6 +1619,7 @@ async function main() {
 
 main().catch(
   error => {
+
     console.error(
       error
     );
