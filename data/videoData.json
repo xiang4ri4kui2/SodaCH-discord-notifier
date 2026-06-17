@@ -173,5 +173,22 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false
+  },
+  {
+    "videoId": "NnBSrdGlM9U",
+    "title": "深夜コラボ！ゲーム下手老人会が思い出パワーでマリオ６４を遊ぶ！！",
+    "channel": "シン・ワシソダ通知er",
+    "live": "archive",
+    "isMembersOnly": false,
+    "published": "2026-05-22T19:57:28Z",
+    "updated": "2026-05-22T19:57:28Z",
+    "scheduledStartTime": "2026-05-22T15:30:00Z",
+    "actualStartTime": "2026-05-22T15:42:06Z",
+    "actualEndTime": "2026-05-22T19:42:28Z",
+    "duration": "03:59:59",
+    "notifiedUpcoming": false,
+    "notifiedLive": false,
+    "notifiedArchive": true,
+    "notifiedVideo": false
   }
 ]
