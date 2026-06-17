@@ -190,5 +190,22 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false
+  },
+  {
+    "videoId": "xYEdBmHPytc",
+    "title": "【Cursed Companions】知性と協調性を発揮してNGワード蔓延る世界でお宝を手に入れろ！【コラボ】",
+    "channel": "シン・ワシソダ通知er",
+    "live": "upcoming",
+    "isMembersOnly": false,
+    "published": "2026-06-17T03:37:47Z",
+    "updated": "2026-06-17T03:37:47Z",
+    "scheduledStartTime": "2026-06-17T12:00:00Z",
+    "actualStartTime": "",
+    "actualEndTime": "",
+    "duration": "00:00:00",
+    "notifiedUpcoming": true,
+    "notifiedLive": false,
+    "notifiedArchive": false,
+    "notifiedVideo": false
   }
 ]
