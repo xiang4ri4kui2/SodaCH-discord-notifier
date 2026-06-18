@@ -281,6 +281,62 @@ function getYouTubeThumbnailUrl(
   );
 }
 
+// ① findExisting() を追加
+function findExisting(
+  videoData,
+  videoId
+) {
+  return videoData.find(
+    row =>
+      row.videoId ===
+      videoId
+  );
+}
+
+// ① VALID_TRANSITIONS を追加
+const VALID_TRANSITIONS = {
+  upcoming: [
+    'upcoming',
+    'live',
+    'archive'
+  ],
+
+  live: [
+    'live',
+    'archive'
+  ],
+
+  archive: [
+    'archive'
+  ],
+
+  video: [
+    'video'
+  ]
+};
+
+// ① shouldProcessItem() を追加
+function shouldProcessItem(
+  existing,
+  newLive
+) {
+  if (!existing) {
+    return true;
+  }
+
+  const current =
+    existing.live;
+
+  const allowed =
+    VALID_TRANSITIONS[
+      current
+    ] || [];
+
+  return allowed.includes(
+    newLive
+  );
+}
+
 async function fetchLatestItems(
   channelId
 ) {
@@ -1116,6 +1172,7 @@ ${message}`
   return true;
 }
 
+// ② createVideoState() に firstSeenAt、lastSeenAt を追加
 function createVideoState(
   channel,
   item,
@@ -1158,6 +1215,14 @@ function createVideoState(
       convertDurationToHHMMSS(
         info.duration
       ),
+
+    firstSeenAt:
+      new Date()
+        .toISOString(),
+
+    lastSeenAt:
+      new Date()
+        .toISOString(),
 
     notifiedUpcoming:
       false,
@@ -1228,10 +1293,9 @@ async function main() {
         item => {
 
           const existing =
-            videoData.find(
-              row =>
-                row.videoId ===
-                item.videoId
+            findExisting(
+              videoData,
+              item.videoId
             );
 
           // 新規
@@ -1331,14 +1395,27 @@ async function main() {
           );
       }
 
+      // ③ findExisting() を使用
       let existing =
-        videoData.find(
-          row =>
-            row.videoId ===
-            item.videoId
+        findExisting(
+          videoData,
+          item.videoId
         );
 
+      // ④ 新規archive拒否＋状態遷移制御
       if (!existing) {
+
+        if (
+          info.liveBroadcastContent ===
+          'archive'
+        ) {
+
+          console.warn(
+            `過去アーカイブ検知のため無視: ${item.videoId}`
+          );
+
+          continue;
+        }
 
         existing =
           createVideoState(
@@ -1436,8 +1513,31 @@ async function main() {
       // 状態更新
       // ==================================
 
+      // ④ 状態遷移チェック追加
+      if (
+        !shouldProcessItem(
+          existing,
+          info.liveBroadcastContent
+        )
+      ) {
+
+        console.warn(
+          `不正遷移を無視: ` +
+          `${existing.videoId} ` +
+          `${existing.live} -> ` +
+          `${info.liveBroadcastContent}`
+        );
+
+        continue;
+      }
+
       existing.live =
         info.liveBroadcastContent;
+
+      // ④ lastSeenAt を更新
+      existing.lastSeenAt =
+        new Date()
+          .toISOString();
 
       existing.scheduledStartTime =
         info.scheduledStartTime;
