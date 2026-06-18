@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import crypto from 'node:crypto';
 
 const CHANNELS_PATH =
   'data/channels.json';
@@ -281,7 +282,99 @@ function getYouTubeThumbnailUrl(
   );
 }
 
-// ① findExisting() を追加
+// サムネイルハッシュ計算関数
+async function downloadAndHashThumbnail(
+  videoId
+) {
+  const thumbnailUrl =
+    getYouTubeThumbnailUrl(
+      videoId
+    );
+
+  try {
+    const response =
+      await fetch(
+        thumbnailUrl
+      );
+
+    if (
+      !response.ok
+    ) {
+      console.warn(
+        `サムネイルダウンロード失敗: ${videoId} HTTP ${response.status}`
+      );
+
+      return null;
+    }
+
+    const buffer =
+      await response.arrayBuffer();
+
+    const hash =
+      crypto
+        .createHash('sha256')
+        .update(
+          Buffer.from(buffer)
+        )
+        .digest('hex');
+
+    return hash;
+  } catch (error) {
+    console.warn(
+      `サムネイルハッシュ計算エラー: ${error.message}`
+    );
+
+    return null;
+  }
+}
+
+// サムネイル差し替え通知判定
+function shouldNotifyThumbnailChange(
+  existing,
+  newHash
+) {
+  // 初回チェック
+  if (
+    !existing.thumbnailHash
+  ) {
+    return false;
+  }
+
+  // ハッシュ変わってない
+  if (
+    existing.thumbnailHash ===
+    newHash
+  ) {
+    return false;
+  }
+
+  // ハッシュが変わった
+
+  // archive または video のみ通知対象
+  const isNotifiable =
+    existing.live === 'archive' ||
+    existing.live === 'video';
+
+  if (
+    isNotifiable
+  ) {
+    console.log(
+      `サムネ差し替え検知（通知対象）: ` +
+      `${existing.videoId} (${existing.live})`
+    );
+
+    return true;
+  }
+
+  // upcoming・live は無視
+  console.log(
+    `サムネ差し替え検知（無視）: ` +
+    `${existing.videoId} (${existing.live})`
+  );
+
+  return false;
+}
+
 function findExisting(
   videoData,
   videoId
@@ -293,7 +386,6 @@ function findExisting(
   );
 }
 
-// ① VALID_TRANSITIONS を追加
 const VALID_TRANSITIONS = {
   upcoming: [
     'upcoming',
@@ -315,7 +407,6 @@ const VALID_TRANSITIONS = {
   ]
 };
 
-// ① shouldProcessItem() を追加
 function shouldProcessItem(
   existing,
   newLive
@@ -1028,6 +1119,24 @@ ${title}
 ${actionText}`;
 }
 
+// サムネイル差し替え通知メッセージ
+function buildThumbnailChangeMessage(
+  video
+) {
+  const time =
+    formatDateForMessage(
+      video.actualEndTime ||
+      video.actualStartTime ||
+      video.sortTime
+    );
+
+  return `${time}に
+
+**${video.title}**
+
+のサムネイルが変更されたソダ～。`;
+}
+
 async function postToDiscord(
   channel,
   video,
@@ -1172,7 +1281,145 @@ ${message}`
   return true;
 }
 
-// ② createVideoState() に firstSeenAt、lastSeenAt を追加
+// サムネイル差し替え通知送信
+async function postThumbnailChangeToDiscord(
+  channel,
+  video
+) {
+  const webhookUrls =
+    getWebhookUrls(
+      channel
+    );
+
+  const videoUrl =
+    getYouTubeVideoUrl(
+      video.videoId
+    );
+
+  const thumbnailUrl =
+    getYouTubeThumbnailUrl(
+      video.videoId
+    );
+
+  const message =
+    buildThumbnailChangeMessage(
+      video
+    );
+
+  for (
+    const webhookUrl of webhookUrls
+  ) {
+    const body = {
+      username:
+        channel.channelName,
+
+      avatar_url:
+        channel.channelIconUrl ||
+        undefined,
+
+      tts:
+        false,
+
+      content:
+        message,
+
+      flags:
+        4096,
+
+      allowed_mentions:
+        {
+          parse:
+            []
+        },
+
+      embeds: [
+        {
+          author:
+            {
+              name:
+                videoUrl,
+
+              url:
+                videoUrl
+            },
+
+          url:
+            videoUrl,
+
+          image:
+            {
+              url:
+                thumbnailUrl
+            },
+
+          color:
+            14037892
+        }
+      ]
+    };
+
+    const response =
+      await fetch(
+        webhookUrl,
+        {
+          method:
+            'POST',
+
+          headers:
+            {
+              'content-type':
+                'application/json'
+            },
+
+          body:
+            JSON.stringify(
+              body
+            )
+        }
+      );
+
+    if (
+      response.status ===
+      429
+    ) {
+      const retryAfter =
+        Number(
+          response.headers.get(
+            'retry-after'
+          ) || 10
+        );
+
+      console.error(
+        `Discord rate limit。${retryAfter}秒待機します。`
+      );
+
+      await sleep(
+        retryAfter *
+          1000
+      );
+
+      continue;
+    }
+
+    if (
+      !response.ok
+    ) {
+      const text =
+        await response.text();
+
+      throw new Error(
+        `Discord投稿失敗: HTTP ${response.status} ${text}`
+      );
+    }
+
+    await sleep(
+      DISCORD_MIN_INTERVAL_MS
+    );
+  }
+
+  return true;
+}
+
 function createVideoState(
   channel,
   item,
@@ -1223,6 +1470,15 @@ function createVideoState(
     lastSeenAt:
       new Date()
         .toISOString(),
+
+    thumbnailHash:
+      null,
+
+    thumbnailHashUpdatedAt:
+      null,
+
+    thumbnailNotified:
+      false,
 
     notifiedUpcoming:
       false,
@@ -1395,14 +1651,12 @@ async function main() {
           );
       }
 
-      // ③ findExisting() を使用
       let existing =
         findExisting(
           videoData,
           item.videoId
         );
 
-      // ④ 新規archive拒否＋状態遷移制御
       if (!existing) {
 
         if (
@@ -1461,7 +1715,7 @@ async function main() {
       }
 
       // ARCHIVE遷移失敗warn
-      // （12時間以上live固定）
+      // （12時間以上live���定）
       if (
         existing
           .isMembersOnly ===
@@ -1513,7 +1767,6 @@ async function main() {
       // 状態更新
       // ==================================
 
-      // ④ 状態遷移チェック追加
       if (
         !shouldProcessItem(
           existing,
@@ -1534,7 +1787,6 @@ async function main() {
       existing.live =
         info.liveBroadcastContent;
 
-      // ④ lastSeenAt を更新
       existing.lastSeenAt =
         new Date()
           .toISOString();
@@ -1552,6 +1804,70 @@ async function main() {
         convertDurationToHHMMSS(
           info.duration
         );
+
+      // ==================================
+      // サムネイルハッシュ検知
+      // ==================================
+
+      const newThumbnailHash =
+        await downloadAndHashThumbnail(
+          item.videoId
+        );
+
+      if (newThumbnailHash) {
+
+        // 初回チェック時にハッシュ保存
+        if (
+          !existing.thumbnailHash
+        ) {
+          existing.thumbnailHash =
+            newThumbnailHash;
+
+          existing
+            .thumbnailHashUpdatedAt =
+            new Date()
+              .toISOString();
+        } else if (
+          shouldNotifyThumbnailChange(
+            existing,
+            newThumbnailHash
+          )
+        ) {
+
+          // archive または video で
+          // ハッシュが変わった場合のみ通知
+
+          await postThumbnailChangeToDiscord(
+            channel,
+            existing
+          );
+
+          existing
+            .thumbnailNotified =
+            true;
+
+          existing.thumbnailHash =
+            newThumbnailHash;
+
+          existing
+            .thumbnailHashUpdatedAt =
+            new Date()
+              .toISOString();
+        } else {
+
+          // ハッシュが変わったが通知対象外
+          // （upcoming・live での変更）
+          // ハッシュだけ更新
+
+          existing.thumbnailHash =
+            newThumbnailHash;
+
+          existing
+            .thumbnailHashUpdatedAt =
+            new Date()
+              .toISOString();
+        }
+      }
 
       // ==================================
       // 初回テスト通知
