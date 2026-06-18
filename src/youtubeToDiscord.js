@@ -428,6 +428,7 @@ function shouldProcessItem(
   );
 }
 
+// RSS 取得（リトライ機構付き）
 async function fetchLatestItems(
   channelId
 ) {
@@ -435,33 +436,69 @@ async function fetchLatestItems(
     YOUTUBE_RSS_PREFIX +
     channelId;
 
-  try {
-    const response =
-      await fetch(
-        rssUrl
-      );
+  const maxRetries = 1;
 
-    if (
-      response.ok
-    ) {
-      const xml =
-        await response.text();
-
-      return parseYouTubeFeed(
-        xml
-      );
-    }
-
-    console.error(
-      `RSS取得に失敗しました。channelId=${channelId}, HTTP ${response.status}`
-    );
-  } catch (
-    error
+  for (
+    let attempt = 1;
+    attempt <= maxRetries + 1;
+    attempt++
   ) {
-    console.error(
-      `RSS取得中にエラー: ${error.message}`
-    );
+
+    try {
+      const response =
+        await fetch(
+          rssUrl
+        );
+
+      if (
+        response.ok
+      ) {
+        const xml =
+          await response.text();
+
+        return parseYouTubeFeed(
+          xml
+        );
+      }
+
+      // ステータスコード関わらず
+      // 「エラーが発生した」と扱う
+      console.warn(
+        `RSS取得失敗: HTTP ${response.status}、` +
+        (
+          attempt === 1
+            ? `500ms 後に再試行します`
+            : `YouTube API へフォールバックします`
+        )
+      );
+
+      if (attempt <= maxRetries) {
+        await sleep(500);
+        continue;
+      }
+
+    } catch (error) {
+      console.warn(
+        `RSS取得エラー: ${error.message}、` +
+        (
+          attempt === 1
+            ? `500ms 後に再試行します`
+            : `YouTube API へフォールバックします`
+        )
+      );
+
+      if (attempt <= maxRetries) {
+        await sleep(500);
+        continue;
+      }
+    }
   }
+
+  // RSS リトライ完了
+  // → API へフォールバック
+  console.warn(
+    `RSS リトライ完了。YouTube API へフォールバックします。`
+  );
 
   return fetchLatestItemsByYouTubeApi(
     channelId
@@ -1715,7 +1752,7 @@ async function main() {
       }
 
       // ARCHIVE遷移失敗warn
-      // （12時間以上live���定）
+      // （12時間以上live固定）
       if (
         existing
           .isMembersOnly ===
