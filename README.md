@@ -21,15 +21,15 @@ https://www.youtube.com/@BabiSodaSky
 
 本 notifier は以下の通知に対応しています。
 
-* 動画投稿の通知
-* ショート投稿の通知
-* ライブ配信枠（配信予定）の作成の通知
-* ライブ配信開始の通知
-* ライブ配信終了の通知
+* 動画投稿
+* ショート投稿
+* ライブ配信枠（配信予定）の作成
+* ライブ配信開始
+* ライブ配信終了
 * サムネイルの差し替え
-* メンバーシップ限定配信枠（配信予定）の作成の通知
-* メンバーシップ限定配信開始の通知
-* メンバーシップ限定配信終了の通知
+* メンバーシップ限定配信枠（配信予定）の作成
+* メンバーシップ限定配信開始
+* メンバーシップ限定配信終了
 
 Discord 通知では、以下を表示します。
 
@@ -40,15 +40,15 @@ Discord 通知では、以下を表示します。
 
 This notifier supports the following notifications:
 
-* Video upload notifications
-* Shorts upload notifications
-* Live stream scheduled notifications
-* Live stream start notifications
-* Live stream end notifications
-* Thumbnail change notifications
-* Members-only live stream scheduled notifications
-* Members-only live stream start notifications
-* Members-only live stream end notifications
+* Video uploads
+* Shorts uploads
+* Live stream scheduling
+* Live stream starts
+* Live stream ends
+* Thumbnail changes
+* Members-only live stream scheduling
+* Members-only live stream starts
+* Members-only live stream ends
 
 Discord notifications include:
 
