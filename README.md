@@ -3,11 +3,11 @@
 ## 概要 / Overview
 
 **曽田すかい@ワシソダch** の更新を Discord に通知するための notifier です。<br>
-YouTube RSS を監視し、動画投稿, ショート投稿, ライブ配信, メンバーシップ限定配信を Discord に通知します。<br>
+YouTube RSS を監視し、動画投稿, ショート投稿, ライブ配信, サムネイルの差し替え, メンバーシップ限定配信を Discord に通知します。<br>
 現在、試験運用中です。<br>
 <br>
 This notifier sends updates from the YouTube channel **"曽田すかい@ワシソダch"** to Discord.<br>
-It monitors the YouTube RSS feed and notifies Discord about video uploads, Shorts uploads, live stream events, and members-only stream events.<br>
+It monitors the YouTube RSS feed and notifies Discord about video uploads, Shorts uploads, live stream events, thumbnail changes, and members-only stream events.<br>
 Currently under trial operation.<br>
 <br>
 ### 対象チャンネル / Target Channel
@@ -26,6 +26,7 @@ https://www.youtube.com/@BabiSodaSky
 * ライブ配信枠（配信予定）の作成の通知
 * ライブ配信開始の通知
 * ライブ配信終了の通知
+* サムネイルの差し替え
 * メンバーシップ限定配信枠（配信予定）の作成の通知
 * メンバーシップ限定配信開始の通知
 * メンバーシップ限定配信終了の通知
@@ -44,6 +45,7 @@ This notifier supports the following notifications:
 * Live stream scheduled notifications
 * Live stream start notifications
 * Live stream end notifications
+* Thumbnail change notifications
 * Members-only live stream scheduled notifications
 * Members-only live stream start notifications
 * Members-only live stream end notifications
