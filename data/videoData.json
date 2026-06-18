@@ -14,7 +14,9 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-18T05:52:20.337Z"
+    "lastSeenAt": "2026-06-18T06:07:15.369Z",
+    "thumbnailHash": "9018a472a09b200ec619f352bc68f81d760d413b8c53250c1345368e1d788bc8",
+    "thumbnailHashUpdatedAt": "2026-06-18T06:07:15.562Z"
   },
   {
     "videoId": "jD1G7QAYImU",
@@ -112,7 +114,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-18T05:52:20.282Z"
+    "lastSeenAt": "2026-06-18T06:07:15.227Z",
+    "thumbnailHash": "c08d03245630e5e185858cb27178ed46acaf9257c38436e019702157335621e5",
+    "thumbnailHashUpdatedAt": "2026-06-18T06:07:15.309Z"
   },
   {
     "videoId": "kVWMs4K22zo",
@@ -129,7 +133,9 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-18T05:52:20.407Z"
+    "lastSeenAt": "2026-06-18T06:07:15.646Z",
+    "thumbnailHash": "b57647848a5ce61aa277ccd850c5eadc4aaf98b808bb1c49145726a592b20d87",
+    "thumbnailHashUpdatedAt": "2026-06-18T06:07:15.747Z"
   },
   {
     "videoId": "zwKOJgCBStI",
@@ -146,7 +152,9 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-18T05:52:20.490Z"
+    "lastSeenAt": "2026-06-18T06:07:15.813Z",
+    "thumbnailHash": "50e58ca904a405b27691821edece4f7d0f661d6efcc00756be80b7ab0f061998",
+    "thumbnailHashUpdatedAt": "2026-06-18T06:07:15.923Z"
   },
   {
     "videoId": "6dQ5UY_5GEk",
@@ -213,6 +221,8 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-18T05:52:20.240Z"
+    "lastSeenAt": "2026-06-18T06:07:15.019Z",
+    "thumbnailHash": "06873760309cf1d5c4df49f1b3c03047b8ab45309ea2a6240404347d23245562",
+    "thumbnailHashUpdatedAt": "2026-06-18T06:07:15.161Z"
   }
 ]
