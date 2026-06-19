@@ -97,9 +97,9 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T12:22:16.932Z",
+    "lastSeenAt": "2026-06-19T12:37:20.753Z",
     "thumbnailHash": "58fc40a1fdf96c6331e2776b772945f9534b69c244db490add1ed3ce19b37a8f",
-    "thumbnailHashUpdatedAt": "2026-06-19T12:22:16.996Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T12:37:20.764Z"
   },
   {
     "videoId": "rXc_NsEPVOg",
@@ -116,9 +116,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T12:22:16.793Z",
+    "lastSeenAt": "2026-06-19T12:37:20.702Z",
     "thumbnailHash": "c08d03245630e5e185858cb27178ed46acaf9257c38436e019702157335621e5",
-    "thumbnailHashUpdatedAt": "2026-06-19T12:22:16.857Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T12:37:20.711Z"
   },
   {
     "videoId": "kVWMs4K22zo",
@@ -173,9 +173,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T12:22:16.655Z",
+    "lastSeenAt": "2026-06-19T12:37:20.650Z",
     "thumbnailHash": "2b3d578c225064e8b30c27adcf3119b315a4226e9ca9bf2ae9955804f2550ea0",
-    "thumbnailHashUpdatedAt": "2026-06-19T12:22:16.682Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T12:37:20.662Z"
   },
   {
     "videoId": "pOHEidvX7m4",
@@ -225,29 +225,29 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T12:22:16.547Z",
+    "lastSeenAt": "2026-06-19T12:37:20.563Z",
     "thumbnailHash": "06873760309cf1d5c4df49f1b3c03047b8ab45309ea2a6240404347d23245562",
-    "thumbnailHashUpdatedAt": "2026-06-19T12:22:16.582Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T12:37:20.608Z"
   },
   {
     "videoId": "yh3y893qQNA",
     "title": "【デジモン】デジモン復帰おじさん、タイムストレンジャーをやる　２５時間目（デジモンストーリータイムストレンジャー完全初見実況）【タイスト初見プレイ】",
     "channel": "シン・ワシソダ通知er",
-    "live": "upcoming",
+    "live": "live",
     "isMembersOnly": false,
     "published": "2026-06-19T03:23:55+00:00",
     "updated": "2026-06-19T03:24:00+00:00",
     "scheduledStartTime": "2026-06-19T12:30:00Z",
-    "actualStartTime": "",
+    "actualStartTime": "2026-06-19T12:36:25Z",
     "actualEndTime": "",
     "duration": "00:00:00",
     "firstSeenAt": "2026-06-19T03:37:13.628Z",
-    "lastSeenAt": "2026-06-19T12:22:16.353Z",
+    "lastSeenAt": "2026-06-19T12:37:13.266Z",
     "thumbnailHash": "66dcac2e89b45e5182e5e7edd33c531db804364a49dc4a032a686bf15f2aee3b",
-    "thumbnailHashUpdatedAt": "2026-06-19T12:22:16.476Z",
+    "thumbnailHashUpdatedAt": "2026-06-19T12:37:13.347Z",
     "thumbnailNotified": false,
     "notifiedUpcoming": true,
-    "notifiedLive": false,
+    "notifiedLive": true,
     "notifiedArchive": false,
     "notifiedVideo": false
   }
