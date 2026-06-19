@@ -97,9 +97,9 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T17:07:15.591Z",
+    "lastSeenAt": "2026-06-19T17:22:17.150Z",
     "thumbnailHash": "58fc40a1fdf96c6331e2776b772945f9534b69c244db490add1ed3ce19b37a8f",
-    "thumbnailHashUpdatedAt": "2026-06-19T17:07:15.626Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T17:22:17.212Z"
   },
   {
     "videoId": "rXc_NsEPVOg",
@@ -116,9 +116,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T17:07:15.500Z",
+    "lastSeenAt": "2026-06-19T17:22:17.007Z",
     "thumbnailHash": "c08d03245630e5e185858cb27178ed46acaf9257c38436e019702157335621e5",
-    "thumbnailHashUpdatedAt": "2026-06-19T17:07:15.554Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T17:22:17.063Z"
   },
   {
     "videoId": "kVWMs4K22zo",
@@ -173,9 +173,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T17:07:15.433Z",
+    "lastSeenAt": "2026-06-19T17:22:16.871Z",
     "thumbnailHash": "2b3d578c225064e8b30c27adcf3119b315a4226e9ca9bf2ae9955804f2550ea0",
-    "thumbnailHashUpdatedAt": "2026-06-19T17:07:15.467Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T17:22:16.928Z"
   },
   {
     "videoId": "pOHEidvX7m4",
@@ -225,9 +225,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-19T17:07:15.364Z",
+    "lastSeenAt": "2026-06-19T17:22:16.709Z",
     "thumbnailHash": "06873760309cf1d5c4df49f1b3c03047b8ab45309ea2a6240404347d23245562",
-    "thumbnailHashUpdatedAt": "2026-06-19T17:07:15.388Z"
+    "thumbnailHashUpdatedAt": "2026-06-19T17:22:16.773Z"
   },
   {
     "videoId": "yh3y893qQNA",
@@ -242,9 +242,9 @@
     "actualEndTime": "",
     "duration": "00:00:00",
     "firstSeenAt": "2026-06-19T03:37:13.628Z",
-    "lastSeenAt": "2026-06-19T17:07:15.254Z",
+    "lastSeenAt": "2026-06-19T17:22:16.501Z",
     "thumbnailHash": "66dcac2e89b45e5182e5e7edd33c531db804364a49dc4a032a686bf15f2aee3b",
-    "thumbnailHashUpdatedAt": "2026-06-19T17:07:15.325Z",
+    "thumbnailHashUpdatedAt": "2026-06-19T17:22:16.629Z",
     "thumbnailNotified": false,
     "notifiedUpcoming": true,
     "notifiedLive": true,
