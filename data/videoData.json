@@ -116,9 +116,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-20T19:22:19.331Z",
+    "lastSeenAt": "2026-06-20T19:37:20.673Z",
     "thumbnailHash": "c08d03245630e5e185858cb27178ed46acaf9257c38436e019702157335621e5",
-    "thumbnailHashUpdatedAt": "2026-06-20T19:22:19.340Z"
+    "thumbnailHashUpdatedAt": "2026-06-20T19:37:20.688Z"
   },
   {
     "videoId": "kVWMs4K22zo",
@@ -173,9 +173,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-20T19:22:19.254Z",
+    "lastSeenAt": "2026-06-20T19:37:20.583Z",
     "thumbnailHash": "2b3d578c225064e8b30c27adcf3119b315a4226e9ca9bf2ae9955804f2550ea0",
-    "thumbnailHashUpdatedAt": "2026-06-20T19:22:19.262Z"
+    "thumbnailHashUpdatedAt": "2026-06-20T19:37:20.596Z"
   },
   {
     "videoId": "pOHEidvX7m4",
@@ -225,9 +225,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-20T19:22:19.148Z",
+    "lastSeenAt": "2026-06-20T19:37:20.496Z",
     "thumbnailHash": "06873760309cf1d5c4df49f1b3c03047b8ab45309ea2a6240404347d23245562",
-    "thumbnailHashUpdatedAt": "2026-06-20T19:22:19.156Z"
+    "thumbnailHashUpdatedAt": "2026-06-20T19:37:20.515Z"
   },
   {
     "videoId": "yh3y893qQNA",
@@ -242,9 +242,9 @@
     "actualEndTime": "2026-06-19T17:48:12Z",
     "duration": "05:11:43",
     "firstSeenAt": "2026-06-19T03:37:13.628Z",
-    "lastSeenAt": "2026-06-20T19:22:19.050Z",
+    "lastSeenAt": "2026-06-20T19:37:20.359Z",
     "thumbnailHash": "66dcac2e89b45e5182e5e7edd33c531db804364a49dc4a032a686bf15f2aee3b",
-    "thumbnailHashUpdatedAt": "2026-06-20T19:22:19.077Z",
+    "thumbnailHashUpdatedAt": "2026-06-20T19:37:20.404Z",
     "thumbnailNotified": false,
     "notifiedUpcoming": true,
     "notifiedLive": true,
@@ -255,22 +255,22 @@
     "videoId": "RD6XhKP-Cgw",
     "title": "【SO2R】スターオーシャンセカンドストーリーに青春を捧げたオタクがスタオー２Ｒで久々に星の海へお出かけする　６時間目【ネタバレ有り】",
     "channel": "シン・ワシソダ通知er",
-    "live": "live",
+    "live": "archive",
     "isMembersOnly": false,
     "published": "2026-06-20T10:12:18+00:00",
     "updated": "2026-06-20T10:12:22+00:00",
     "scheduledStartTime": "2026-06-20T12:30:00Z",
     "actualStartTime": "2026-06-20T12:35:17Z",
-    "actualEndTime": "",
-    "duration": "00:00:00",
+    "actualEndTime": "2026-06-20T19:30:43Z",
+    "duration": "06:55:25",
     "firstSeenAt": "2026-06-20T10:22:15.161Z",
-    "lastSeenAt": "2026-06-20T19:22:18.914Z",
+    "lastSeenAt": "2026-06-20T19:37:13.646Z",
     "thumbnailHash": "fd2a661287b95b7602d2a4ff60178808bcdad846901e708c98e90046599e19dc",
-    "thumbnailHashUpdatedAt": "2026-06-20T19:22:18.983Z",
+    "thumbnailHashUpdatedAt": "2026-06-20T19:37:13.710Z",
     "thumbnailNotified": false,
     "notifiedUpcoming": true,
     "notifiedLive": true,
-    "notifiedArchive": false,
+    "notifiedArchive": true,
     "notifiedVideo": false
   }
 ]
