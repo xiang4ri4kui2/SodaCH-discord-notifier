@@ -3,11 +3,11 @@
 ## 概要 / Overview
 
 **曽田すかい@ワシソダch** の更新を Discord に通知するための notifier です。<br>
-YouTube RSS を監視し、動画投稿, ショート投稿, ライブ配信, サムネイルの差し替え, メンバーシップ限定配信を Discord に通知します。<br>
+YouTube RSS と「ライブ」頁を監視し、動画投稿, ショート投稿, ライブ配信, サムネイルの差し替え, メンバーシップ限定配信を Discord に通知します。<br>
 現在、試験運用中です。<br>
 <br>
 This notifier sends updates from the YouTube channel **"曽田すかい@ワシソダch"** to Discord.<br>
-It monitors the YouTube RSS feed and notifies Discord about video uploads, Shorts uploads, live stream events, thumbnail changes, and members-only stream events.<br>
+It monitors the YouTube RSS feed and the channel's Live page, and notifies Discord about video uploads, Shorts uploads, live stream events, thumbnail changes, and members-only stream events.<br>
 Currently under trial operation.<br>
 <br>
 ### 対象チャンネル / Target Channel
