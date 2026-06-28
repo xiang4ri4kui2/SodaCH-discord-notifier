@@ -1594,7 +1594,6 @@ async function main() {
           // 新規
           if (!existing) {
 
-            // upcoming は採用
             if (
               item.live ===
               'upcoming'
@@ -1602,8 +1601,6 @@ async function main() {
               return true;
             }
 
-            // live は救済採用
-            // （upcoming取り逃し対策）
             if (
               item.live ===
               'live'
@@ -1617,15 +1614,14 @@ async function main() {
               return true;
             }
 
-            // archive は無視
             return false;
           }
 
-          // tracking中のみ再チェック
+          // ★変更
+          // メン限→通常
+          // 通常→メン限
+          // の切り替えを追跡するため
           return (
-            existing
-              .isMembersOnly ===
-              true &&
             !existing
               .notifiedArchive
           );
@@ -1636,11 +1632,19 @@ async function main() {
       `メン限処理対象: ${trackedMembersOnlyItems.length} 件`
     );
 
+    // ★追加
+    const membersOnlyVideoIds =
+      new Set(
+        membersOnlyItems.map(
+          item => item.videoId
+        )
+      );
+
     latestItems = [
       ...latestItems,
       ...trackedMembersOnlyItems
     ];
-
+    
     for (
       const item of latestItems
     ) {
@@ -1719,6 +1723,16 @@ async function main() {
           existing
         );
       }
+
+      // ★追加
+      // 現在のメン限状態を毎回同期
+      const currentMembersOnly =
+        membersOnlyVideoIds.has(
+          item.videoId
+        );
+
+      existing.isMembersOnly =
+        currentMembersOnly;
 
       // ==================================
       // 保険ログ
