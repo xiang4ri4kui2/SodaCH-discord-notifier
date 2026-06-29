@@ -1,11 +1,16 @@
 {
   "version": "20260629",
-  "description": "軽量ルールベース分類エンジン。tags優先→title→description。matchingStrategy=first_matchで上から順に判定し最初にマッチした作品を採用。fallbackはロジック側でunidentified処理。",
+  "description": "軽量ルールベース分類エンジン。作品判定ルールは searchOrder, matchingStrategy, defaultMatch に従う。",
   "defaultMatch": {
     "mode": "partial",
     "caseSensitive": false
   },
   "matchingStrategy": "first_match",
+  "searchOrder": [
+    "tags",
+    "title",
+    "description"
+  ],
   "works": [
     {
       "id": "uma_musume",
