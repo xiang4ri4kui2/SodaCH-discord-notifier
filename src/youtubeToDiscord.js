@@ -7,6 +7,9 @@ const CHANNELS_PATH =
 const VIDEO_DATA_PATH =
   'data/videoData.json';
 
+const WORKS_MASTER_PATH =
+  'data/worksMaster.json';
+
 const YOUTUBE_RSS_PREFIX =
   'https://www.youtube.com/feeds/videos.xml?channel_id=';
 
@@ -1174,9 +1177,79 @@ function buildThumbnailChangeMessage(
 のサムネイルが変更されたソダ～。`;
 }
 
+function buildWorkFields(
+  workInfo
+) {
+  if (
+    !workInfo ||
+    workInfo.id === 'chat' ||
+    workInfo.id === 'unidentified'
+  ) {
+    return undefined;
+  }
+
+  return [
+    {
+      name:
+        '作品',
+
+      value:
+        workInfo.name,
+
+      inline:
+        false
+    },
+    {
+      name:
+        '作品ページ',
+
+      value:
+        workInfo.url || '',
+
+      inline:
+        false
+    }
+  ];
+}
+
+function buildEmbed(
+  videoUrl,
+  thumbnailUrl,
+  workInfo
+) {
+  return {
+    author:
+      {
+        name:
+          videoUrl,
+
+        url:
+          videoUrl
+      },
+
+    url:
+      videoUrl,
+
+    image:
+      {
+        url:
+          thumbnailUrl
+      },
+
+    fields:
+      buildWorkFields(
+        workInfo
+      ),
+
+    color:
+      14037892
+  };
+}
+
 async function postToDiscord(
   channel,
   video,
+  workInfo = null,
   isInitialTest = false
 ) {
   const webhookUrls =
@@ -1231,28 +1304,11 @@ ${message}`
         },
 
       embeds: [
-        {
-          author:
-            {
-              name:
-                videoUrl,
-
-              url:
-                videoUrl
-            },
-
-          url:
-            videoUrl,
-
-          image:
-            {
-              url:
-                thumbnailUrl
-            },
-
-          color:
-            14037892
-        }
+        buildEmbed(
+          videoUrl,
+          thumbnailUrl,
+          workInfo
+        )
       ]
     };
 
@@ -1321,7 +1377,8 @@ ${message}`
 // サムネイル差し替え通知送信
 async function postThumbnailChangeToDiscord(
   channel,
-  video
+  video,
+  workInfo = null
 ) {
   const webhookUrls =
     getWebhookUrls(
@@ -1370,28 +1427,11 @@ async function postThumbnailChangeToDiscord(
         },
 
       embeds: [
-        {
-          author:
-            {
-              name:
-                videoUrl,
-
-              url:
-                videoUrl
-            },
-
-          url:
-            videoUrl,
-
-          image:
-            {
-              url:
-                thumbnailUrl
-            },
-
-          color:
-            14037892
-        }
+        buildEmbed(
+          videoUrl,
+          thumbnailUrl,
+          workInfo
+        )
       ]
     };
 
@@ -1455,6 +1495,70 @@ async function postThumbnailChangeToDiscord(
   }
 
   return true;
+}
+
+function classifyVideo(
+  video,
+  worksMaster
+) {
+  if (
+    !worksMaster ||
+    !video?.title
+  ) {
+    return null;
+  }
+
+  const works =
+    worksMaster.works || [];
+
+  const caseSensitive =
+    worksMaster
+      .defaultMatch
+      ?.caseSensitive ??
+    false;
+
+  const searchTitle =
+    caseSensitive
+      ? video.title
+      : video.title.toLowerCase();
+
+  for (
+    const work of works
+  ) {
+    if (
+      !work.patterns ||
+      work.patterns
+        .length === 0
+    ) {
+      continue;
+    }
+
+    for (
+      const pattern of
+      work.patterns
+    ) {
+      const searchPattern =
+        caseSensitive
+          ? pattern
+          : pattern.toLowerCase();
+
+      if (
+        searchTitle.includes(
+          searchPattern
+        )
+      ) {
+        return work;
+      }
+    }
+  }
+
+  // fallback
+  return (
+    works.find(
+      w =>
+        w.id === 'unidentified'
+    ) || null
+  );
 }
 
 function createVideoState(
@@ -1547,6 +1651,12 @@ async function main() {
   const isInitialRun =
     videoData.length === 0;
 
+  const worksMaster =
+    await readJson(
+      WORKS_MASTER_PATH,
+      null
+    );
+  
   let initialTestPosted =
     false;
 
@@ -1734,6 +1844,13 @@ async function main() {
       existing.isMembersOnly =
         currentMembersOnly;
 
+      // 作品分類
+      const workInfo =
+        classifyVideo(
+          existing,
+          worksMaster
+        );
+
       // ==================================
       // 保険ログ
       // ==================================
@@ -1890,7 +2007,8 @@ async function main() {
 
           await postThumbnailChangeToDiscord(
             channel,
-            existing
+            existing,
+            workInfo
           );
 
           existing
@@ -1932,6 +2050,7 @@ async function main() {
         await postToDiscord(
           channel,
           existing,
+          workInfo,
           true
         );
 
@@ -1983,7 +2102,8 @@ async function main() {
 
         await postToDiscord(
           channel,
-          existing
+          existing,
+          workInfo
         );
 
         existing
@@ -2001,7 +2121,8 @@ async function main() {
 
         await postToDiscord(
           channel,
-          existing
+          existing,
+          workInfo          
         );
 
         existing
@@ -2019,7 +2140,8 @@ async function main() {
 
         await postToDiscord(
           channel,
-          existing
+          existing,
+          workInfo
         );
 
         existing
@@ -2051,7 +2173,8 @@ async function main() {
 
         await postToDiscord(
           channel,
-          existing
+          existing,
+          workInfo
         );
 
         existing
