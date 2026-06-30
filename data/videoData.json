@@ -14,9 +14,9 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-30T03:37:13.603Z",
+    "lastSeenAt": "2026-06-30T03:52:21.877Z",
     "thumbnailHash": "9018a472a09b200ec619f352bc68f81d760d413b8c53250c1345368e1d788bc8",
-    "thumbnailHashUpdatedAt": "2026-06-30T03:37:13.713Z",
+    "thumbnailHashUpdatedAt": "2026-06-30T03:52:21.910Z",
     "isMembersOnly": false
   },
   {
@@ -117,9 +117,9 @@
     "notifiedLive": true,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-30T03:37:13.473Z",
+    "lastSeenAt": "2026-06-30T03:52:21.747Z",
     "thumbnailHash": "c08d03245630e5e185858cb27178ed46acaf9257c38436e019702157335621e5",
-    "thumbnailHashUpdatedAt": "2026-06-30T03:37:13.542Z",
+    "thumbnailHashUpdatedAt": "2026-06-30T03:52:21.816Z",
     "isMembersOnly": false
   },
   {
@@ -137,9 +137,9 @@
     "notifiedLive": false,
     "notifiedArchive": true,
     "notifiedVideo": false,
-    "lastSeenAt": "2026-06-30T03:37:13.767Z",
+    "lastSeenAt": "2026-06-30T03:52:21.996Z",
     "thumbnailHash": "b57647848a5ce61aa277ccd850c5eadc4aaf98b808bb1c49145726a592b20d87",
-    "thumbnailHashUpdatedAt": "2026-06-30T03:37:13.840Z",
+    "thumbnailHashUpdatedAt": "2026-06-30T03:52:22.030Z",
     "isMembersOnly": false
   },
   {
@@ -378,9 +378,9 @@
     "actualEndTime": "2026-06-26T15:33:46Z",
     "duration": "03:00:09",
     "firstSeenAt": "2026-06-26T11:37:13.077Z",
-    "lastSeenAt": "2026-06-30T03:37:13.370Z",
+    "lastSeenAt": "2026-06-30T03:52:21.671Z",
     "thumbnailHash": "22a3555730d227883c942181ac87405930fab83663721c22aed6cb001634e654",
-    "thumbnailHashUpdatedAt": "2026-06-30T03:37:13.407Z",
+    "thumbnailHashUpdatedAt": "2026-06-30T03:52:21.695Z",
     "thumbnailNotified": false,
     "notifiedUpcoming": true,
     "notifiedLive": true,
@@ -407,6 +407,28 @@
     "notifiedUpcoming": true,
     "notifiedLive": false,
     "notifiedArchive": true,
+    "notifiedVideo": false
+  },
+  {
+    "videoId": "hT8hB-9nIJ0",
+    "title": "ウマ娘ワシソダービー～ウマ娘をわしが育てる～　８５馬身目（ウマ娘プリティーダービー　新シナリオ「らっしゃい！トレセン軒！」初見育成）",
+    "channel": "シン・ワシソダ通知er",
+    "live": "upcoming",
+    "isMembersOnly": false,
+    "published": "2026-06-30T03:42:35Z",
+    "updated": "2026-06-30T03:42:35Z",
+    "scheduledStartTime": "2026-06-30T12:00:00Z",
+    "actualStartTime": "",
+    "actualEndTime": "",
+    "duration": "00:00:00",
+    "firstSeenAt": "2026-06-30T03:52:14.591Z",
+    "lastSeenAt": "2026-06-30T03:52:14.591Z",
+    "thumbnailHash": "89b540a2e1e3be5e762d8c60ee4eefd81dac07133ec2eb49a3abbefdb33f44e0",
+    "thumbnailHashUpdatedAt": "2026-06-30T03:52:15.317Z",
+    "thumbnailNotified": false,
+    "notifiedUpcoming": true,
+    "notifiedLive": false,
+    "notifiedArchive": false,
     "notifiedVideo": false
   }
 ]
