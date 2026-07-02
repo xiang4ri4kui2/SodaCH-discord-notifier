@@ -37,6 +37,23 @@ const STREAM_ANNIVERSARY_DAY =
 const STREAM_OPEN_YEAR =
   2020;
 
+const COUNTDOWN_DATES = [
+  { month: 4,  day: 3,  label: '3ヶ月' },
+  { month: 4,  day: 11, label: '3ヶ月' },
+  { month: 5,  day: 3,  label: '2ヶ月' },
+  { month: 5,  day: 11, label: '2ヶ月' },
+  { month: 6,  day: 3,  label: '1ヶ月' },
+  { month: 6,  day: 11, label: '1ヶ月' },
+  { month: 6,  day: 18, label: '半月' },
+  { month: 6,  day: 26, label: '半月' },
+  { month: 6,  day: 30, label: '3日' },
+  { month: 7,  day: 1,  label: '2日' },
+  { month: 7,  day: 2,  label: '1日' },
+  { month: 7,  day: 8,  label: '3日' },
+  { month: 7,  day: 9,  label: '2日' },
+  { month: 7,  day: 10, label: '1日' }
+];
+
 const YOUTUBE_RSS_PREFIX =
   'https://www.youtube.com/feeds/videos.xml?channel_id=';
 
@@ -1525,7 +1542,7 @@ function buildChannelAnniversaryMessage(
   return (
     `🎊 **${anniversary}周年（CH創設記念日）** 🎊
 
-ワシソダCH創設、**${anniversary}周年**おめでとうソダ～！🥳
+ワシソダCHの創設、**${anniversary}周年**おめでとうソダ～！🥳
 
 🎉曽田すかい＠ワシソダch🎉
 ${CHANNEL_ANNIVERSARY_URL}`
@@ -1890,6 +1907,150 @@ function classifyVideo(
         w.id === 'unidentified'
     ) || null
   );
+}
+
+function buildCountdownMessage(
+  anniversary,
+  label
+) {
+  return (
+    `⏳**${anniversary}周年カウントダウン**⏳
+
+ワシソダCHの創設記念日（7/3）と配信開始記念日（7/11）、${label}前ソダ～✨
+
+✅曽田すかい＠ワシソダch✅
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+async function checkCountdown(
+  channels,
+  anniversaryData
+) {
+  const formatter =
+    new Intl.DateTimeFormat(
+      'ja-JP',
+      {
+        timeZone:
+          'Asia/Tokyo',
+
+        year:
+          'numeric',
+
+        month:
+          '2-digit',
+
+        day:
+          '2-digit'
+      }
+    );
+
+  const parts =
+    formatter.formatToParts(
+      new Date()
+    );
+
+  const get =
+    type =>
+      Number(
+        parts
+          .find(p => p.type === type)
+          ?.value
+      );
+
+  const year =  get('year');
+  const month = get('month');
+  const day =   get('day');
+
+  const todayEntry =
+    COUNTDOWN_DATES.find(
+      d =>
+        d.month === month &&
+        d.day === day
+    );
+
+  if (!todayEntry) {
+    return false;
+  }
+
+  const monthStr =
+    String(month).padStart(2, '0');
+
+  const dayStr =
+    String(day).padStart(2, '0');
+
+  const key =
+    `${year}_${monthStr}_${dayStr}`;
+
+  if (
+    !anniversaryData.countdown
+  ) {
+    anniversaryData.countdown = {
+      sentKeys: []
+    };
+  }
+
+  if (
+    !Array.isArray(
+      anniversaryData
+        .countdown
+        .sentKeys
+    )
+  ) {
+    anniversaryData
+      .countdown
+      .sentKeys = [];
+  }
+
+  if (
+    anniversaryData
+      .countdown
+      .sentKeys
+      .includes(key)
+  ) {
+    console.log(
+      `本日分のカウントダウン通知は送信済みです。(${key})`
+    );
+
+    return false;
+  }
+
+  const anniversary =
+    year -
+    CHANNEL_OPEN_YEAR;
+
+  await postAnniversaryToDiscord(
+    channels,
+    buildCountdownMessage(
+      anniversary,
+      todayEntry.label
+    )
+  );
+
+  anniversaryData
+    .countdown
+    .sentKeys
+    .push(key);
+
+  // 前年以前の古いキーを削除
+  anniversaryData
+    .countdown
+    .sentKeys =
+    anniversaryData
+      .countdown
+      .sentKeys
+      .filter(
+        k =>
+          k.startsWith(
+            String(year)
+          )
+      );
+
+  console.log(
+    `${todayEntry.label}前カウントダウン通知を送信しました。`
+  );
+
+  return true;
 }
 
 function createVideoState(
@@ -2583,9 +2744,16 @@ async function main() {
       anniversaryData
     );
 
+  const countdownUpdated =
+    await checkCountdown(
+      channels,
+      anniversaryData
+    );
+
   const anniversaryUpdated =
     channelAnniversaryUpdated ||
-    streamAnniversaryUpdated;
+    streamAnniversaryUpdated ||
+    countdownUpdated;
 
   await writeJson(
     VIDEO_DATA_PATH,
