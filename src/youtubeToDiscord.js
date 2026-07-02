@@ -1206,37 +1206,47 @@ function buildWorkFields(
     return undefined;
   }
 
-  const fields = [];
+  let value =
+    '';
 
-  if (workInfo.name) {
-    fields.push({
+  if (
+    workInfo.name
+  ) {
+    value +=
+      workInfo.name;
+  }
+
+  if (
+    workInfo.url
+  ) {
+
+    if (
+      value.length > 0
+    ) {
+      value += '\n';
+    }
+
+    value +=
+      workInfo.url;
+  }
+
+  if (
+    value.length === 0
+  ) {
+    return undefined;
+  }
+
+  return [
+    {
       name:
-        '作品',
+        '\u200B',
 
-      value:
-        workInfo.name,
+      value,
 
       inline:
         false
-    });
-  }
-
-  if (workInfo.url) {
-    fields.push({
-      name:
-        '作品ページ',
-
-      value:
-        workInfo.url,
-
-      inline:
-        false
-    });
-  }
-
-  return fields.length > 0
-    ? fields
-    : undefined;
+    }
+  ];
 }
 
 function buildEmbed(
@@ -2464,10 +2474,10 @@ async function main() {
   }
 
   const anniversaryUpdated =
-  await checkChannelAnniversary(
-    channels,
-    anniversaryData
-  );
+    await checkChannelAnniversary(
+      channels,
+      anniversaryData
+    );
 
   await writeJson(
     VIDEO_DATA_PATH,
