@@ -2460,14 +2460,14 @@ async function main() {
   }
 
   // 一時的に周年通知を無効化
-  //const anniversaryUpdated =
-  //  false;
-
   const anniversaryUpdated =
-    await checkChannelAnniversary(
-      channels,
-      anniversaryData
-    );
+    false;
+
+  //const anniversaryUpdated =
+  //  await checkChannelAnniversary(
+  //    channels,
+  //    anniversaryData
+  //  );
 
   await writeJson(
     VIDEO_DATA_PATH,
