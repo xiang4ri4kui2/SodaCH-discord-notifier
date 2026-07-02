@@ -1916,7 +1916,7 @@ function buildCountdownMessage(
   return (
     `⏳**${anniversary}周年カウントダウン**⏳
 
-ワシソダCHの創設記念日（7/3）と配信開始記念日（7/11）、${label}前ソダ～✨
+ワシソダCHの創設記念日（7/3） or 配信開始記念日（7/11）、${label}前ソダ～✨
 
 ✅曽田すかい＠ワシソダch✅
 ${CHANNEL_ANNIVERSARY_URL}`
