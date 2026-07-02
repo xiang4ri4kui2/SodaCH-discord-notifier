@@ -4,5 +4,8 @@
   },
   "streamAnniversary": {
     "lastSentYear": 0
+  },
+  "countdown": {
+    "sentKeys": []
   }
 }
