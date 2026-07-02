@@ -1542,7 +1542,7 @@ function buildChannelAnniversaryMessage(
 
 ワシソダCH創設、**${anniversary}周年**おめでとうソダ～！🥳
 
-**曽田すかい＠ワシソダch**
+🎉曽田すかい＠ワシソダch🎉
 ${CHANNEL_ANNIVERSARY_URL}`
   );
 }
