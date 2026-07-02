@@ -1195,7 +1195,7 @@ function buildThumbnailChangeMessage(
 のサムネイルが変更されたソダ～。`;
 }
 
-function buildWorkFields(
+function buildWorkDescription(
   workInfo
 ) {
   if (
@@ -1206,47 +1206,23 @@ function buildWorkFields(
     return undefined;
   }
 
-  let value =
-    '';
+  const lines = [];
 
-  if (
-    workInfo.name
-  ) {
-    value +=
-      workInfo.name;
+  if (workInfo.name) {
+    lines.push(
+      `**${workInfo.name}**`
+    );
   }
 
-  if (
-    workInfo.url
-  ) {
-
-    if (
-      value.length > 0
-    ) {
-      value += '\n';
-    }
-
-    value +=
-      workInfo.url;
+  if (workInfo.url) {
+    lines.push(
+      workInfo.url
+    );
   }
 
-  if (
-    value.length === 0
-  ) {
-    return undefined;
-  }
-
-  return [
-    {
-      name:
-        '\u200B',
-
-      value,
-
-      inline:
-        false
-    }
-  ];
+  return lines.length > 0
+    ? lines.join('\n')
+    : undefined;
 }
 
 function buildEmbed(
@@ -1267,16 +1243,16 @@ function buildEmbed(
     url:
       videoUrl,
 
+    description:
+      buildWorkDescription(
+        workInfo
+      ),
+
     image:
       {
         url:
           thumbnailUrl
       },
-
-    fields:
-      buildWorkFields(
-        workInfo
-      ),
 
     color:
       14037892
@@ -1662,30 +1638,40 @@ async function checkChannelAnniversary(
   channels,
   anniversaryData
 ) {
+  const formatter =
+    new Intl.DateTimeFormat(
+      'ja-JP',
+      {
+        timeZone:
+          'Asia/Tokyo',
 
-  const now =
-    new Date();
+        year:
+          'numeric',
 
-  const japanNow =
-    new Date(
-      now.toLocaleString(
-        'en-US',
-        {
-          timeZone:
-            'Asia/Tokyo'
-        }
-      )
+        month:
+          '2-digit',
+
+        day:
+          '2-digit'
+      }
     );
 
-  const year =
-    japanNow.getFullYear();
+  const parts =
+    formatter.formatToParts(
+      new Date()
+    );
 
-  const month =
-    japanNow.getMonth() +
-    1;
+  const get =
+    type =>
+      Number(
+        parts
+          .find(p => p.type === type)
+          ?.value
+      );
 
-  const day =
-    japanNow.getDate();
+  const year =  get('year');
+  const month = get('month');
+  const day =   get('day');
 
   if (
     month !==
@@ -1693,7 +1679,6 @@ async function checkChannelAnniversary(
     day !==
       CHANNEL_ANNIVERSARY_DAY
   ) {
-
     return false;
   }
 
@@ -1707,7 +1692,6 @@ async function checkChannelAnniversary(
     lastSentYear ===
     year
   ) {
-
     console.log(
       '今年の周年通知は送信済みです。'
     );
@@ -1724,7 +1708,9 @@ async function checkChannelAnniversary(
     anniversary
   );
 
-  anniversaryData.channelAnniversary.lastSentYear =
+  anniversaryData
+    .channelAnniversary
+    .lastSentYear =
     year;
 
   console.log(
@@ -2474,14 +2460,14 @@ async function main() {
   }
 
   // 一時的に周年通知を無効化
-  const anniversaryUpdated =
-    false;
+  //const anniversaryUpdated =
+  //  false;
 
-  // const anniversaryUpdated =
-  //  await checkChannelAnniversary(
-  //    channels,
-  //    anniversaryData
-  //  );
+  const anniversaryUpdated =
+    await checkChannelAnniversary(
+      channels,
+      anniversaryData
+    );
 
   await writeJson(
     VIDEO_DATA_PATH,
