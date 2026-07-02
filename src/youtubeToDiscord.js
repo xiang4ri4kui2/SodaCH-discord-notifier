@@ -8,7 +8,7 @@ const VIDEO_DATA_PATH =
   'data/videoData.json';
 
 const WORKS_MASTER_URL =
-  'https://raw.githubusercontent.com/xiang4ri4kui/SodaCH-works-classifier/main/data/worksMaster.json';
+  'https://raw.githubusercontent.com/xiang4ri4kui2/SodaCH-works-classifier/main/data/worksMaster.json';
 
 const WORKS_MASTER_CACHE_PATH =
   'data/worksMasterCache.json';
