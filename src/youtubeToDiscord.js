@@ -28,6 +28,15 @@ const CHANNEL_OPEN_YEAR =
 const CHANNEL_ANNIVERSARY_URL =
   'https://www.youtube.com/@BabiSodaSky';
 
+const STREAM_ANNIVERSARY_MONTH =
+  7;
+
+const STREAM_ANNIVERSARY_DAY =
+  11;
+
+const STREAM_OPEN_YEAR =
+  2020;
+
 const YOUTUBE_RSS_PREFIX =
   'https://www.youtube.com/feeds/videos.xml?channel_id=';
 
@@ -1525,12 +1534,8 @@ ${CHANNEL_ANNIVERSARY_URL}`
 
 async function postChannelAnniversaryToDiscord(
   channels,
-  anniversary
+  message
 ) {
-  const message =
-    buildChannelAnniversaryMessage(
-      anniversary
-    );
 
   for (
     const channel of channels
@@ -1703,9 +1708,11 @@ async function checkChannelAnniversary(
     year -
     CHANNEL_OPEN_YEAR;
 
-  await postChannelAnniversaryToDiscord(
+  await postAnniversaryToDiscord(
     channels,
-    anniversary
+    buildChannelAnniversaryMessage(
+      anniversary
+    )
   );
 
   anniversaryData
@@ -1715,6 +1722,107 @@ async function checkChannelAnniversary(
 
   console.log(
     `${anniversary}周年通知を送信しました。`
+  );
+
+  return true;
+}
+
+function buildStreamAnniversaryMessage(
+  anniversary
+) {
+  return (
+    `🎊 **${anniversary}周年（配信開始記念日）** 🎊
+
+ワシソダCHの配信開始、**${anniversary}周年**おめでとうソダ～！🥳
+
+🎉曽田すかい＠ワシソダch🎉
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+async function checkStreamAnniversary(
+  channels,
+  anniversaryData
+) {
+  const formatter =
+    new Intl.DateTimeFormat(
+      'ja-JP',
+      {
+        timeZone:
+          'Asia/Tokyo',
+
+        year:
+          'numeric',
+
+        month:
+          '2-digit',
+
+        day:
+          '2-digit'
+      }
+    );
+
+  const parts =
+    formatter.formatToParts(
+      new Date()
+    );
+
+  const get =
+    type =>
+      Number(
+        parts
+          .find(p => p.type === type)
+          ?.value
+      );
+
+  const year =  get('year');
+  const month = get('month');
+  const day =   get('day');
+
+  if (
+    month !==
+      STREAM_ANNIVERSARY_MONTH ||
+    day !==
+      STREAM_ANNIVERSARY_DAY
+  ) {
+    return false;
+  }
+
+  const lastSentYear =
+    anniversaryData
+      ?.streamAnniversary
+      ?.lastSentYear ??
+    0;
+
+  if (
+    lastSentYear ===
+    year
+  ) {
+    console.log(
+      '今年の配信開始記念日通知は送信済みです。'
+    );
+
+    return false;
+  }
+
+  const anniversary =
+    year -
+    STREAM_OPEN_YEAR;
+
+  await postAnniversaryToDiscord(
+    channels,
+    buildStreamAnniversaryMessage(
+      anniversary
+    )
+  );
+
+  anniversaryData
+    .streamAnniversary
+    .lastSentYear =
+    year;
+
+  console.log(
+    `配信開始${anniversary}周年通知を送信しました。`
   );
 
   return true;
@@ -2463,11 +2571,21 @@ async function main() {
   //const anniversaryUpdated =
   //  false;
 
-  const anniversaryUpdated =
+  const channelAnniversaryUpdated =
     await checkChannelAnniversary(
       channels,
       anniversaryData
     );
+
+  const streamAnniversaryUpdated =
+    await checkStreamAnniversary(
+      channels,
+      anniversaryData
+    );
+
+  const anniversaryUpdated =
+    channelAnniversaryUpdated ||
+    streamAnniversaryUpdated;
 
   await writeJson(
     VIDEO_DATA_PATH,
