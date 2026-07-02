@@ -13,6 +13,21 @@ const WORKS_MASTER_URL =
 const WORKS_MASTER_CACHE_PATH =
   'data/worksMasterCache.json';
 
+const ANNIVERSARY_DATA_PATH =
+  'data/anniversaryData.json';
+
+const CHANNEL_ANNIVERSARY_MONTH =
+  7;
+
+const CHANNEL_ANNIVERSARY_DAY =
+  3;
+
+const CHANNEL_OPEN_YEAR =
+  2020;
+
+const CHANNEL_ANNIVERSARY_URL =
+  'https://www.youtube.com/@BabiSodaSky';
+
 const YOUTUBE_RSS_PREFIX =
   'https://www.youtube.com/feeds/videos.xml?channel_id=';
 
@@ -1509,6 +1524,206 @@ async function postThumbnailChangeToDiscord(
   return true;
 }
 
+function buildChannelAnniversaryMessage(
+  anniversary
+) {
+  return (
+    `🎊 **${anniversary}周年（CH創設記念日）** 🎊
+
+ワシソダCH創設、**${anniversary}周年**おめでとうソダ～！🥳
+
+**曽田すかい＠ワシソダch**
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+async function postChannelAnniversaryToDiscord(
+  channels,
+  anniversary
+) {
+  const message =
+    buildChannelAnniversaryMessage(
+      anniversary
+    );
+
+  for (
+    const channel of channels
+  ) {
+
+    const webhookUrls =
+      getWebhookUrls(
+        channel
+      );
+
+    for (
+      const webhookUrl of webhookUrls
+    ) {
+
+      const body = {
+        username:
+          channel.channelName,
+
+        avatar_url:
+          channel.channelIconUrl ||
+          undefined,
+
+        tts:
+          false,
+
+        content:
+          message,
+
+        flags:
+          4096,
+
+        allowed_mentions:
+          {
+            parse:
+              []
+          }
+      };
+
+      const response =
+        await fetch(
+          webhookUrl,
+          {
+            method:
+              'POST',
+
+            headers:
+              {
+                'content-type':
+                  'application/json'
+              },
+
+            body:
+              JSON.stringify(
+                body
+              )
+          }
+        );
+
+      if (
+        response.status ===
+        429
+      ) {
+
+        const retryAfter =
+          Number(
+            response.headers.get(
+              'retry-after'
+            ) || 10
+          );
+
+        console.error(
+          `Discord rate limit。${retryAfter}秒待機します。`
+        );
+
+        await sleep(
+          retryAfter *
+            1000
+        );
+
+        continue;
+      }
+
+      if (
+        !response.ok
+      ) {
+
+        const text =
+          await response.text();
+
+        throw new Error(
+          `Discord投稿失敗: HTTP ${response.status} ${text}`
+        );
+      }
+
+      await sleep(
+        DISCORD_MIN_INTERVAL_MS
+      );
+    }
+  }
+
+  return true;
+}
+
+async function checkChannelAnniversary(
+  channels,
+  anniversaryData
+) {
+
+  const now =
+    new Date();
+
+  const japanNow =
+    new Date(
+      now.toLocaleString(
+        'en-US',
+        {
+          timeZone:
+            'Asia/Tokyo'
+        }
+      )
+    );
+
+  const year =
+    japanNow.getFullYear();
+
+  const month =
+    japanNow.getMonth() +
+    1;
+
+  const day =
+    japanNow.getDate();
+
+  if (
+    month !==
+      CHANNEL_ANNIVERSARY_MONTH ||
+    day !==
+      CHANNEL_ANNIVERSARY_DAY
+  ) {
+
+    return false;
+  }
+
+  const lastSentYear =
+    anniversaryData
+      ?.channelAnniversary
+      ?.lastSentYear ??
+    0;
+
+  if (
+    lastSentYear ===
+    year
+  ) {
+
+    console.log(
+      '今年の周年通知は送信済みです。'
+    );
+
+    return false;
+  }
+
+  const anniversary =
+    year -
+    CHANNEL_OPEN_YEAR;
+
+  await postChannelAnniversaryToDiscord(
+    channels,
+    anniversary
+  );
+
+  anniversaryData.channelAnniversary.lastSentYear =
+    year;
+
+  console.log(
+    `${anniversary}周年通知を送信しました。`
+  );
+
+  return true;
+}
+
 function classifyVideo(
   video,
   worksMaster
@@ -1658,6 +1873,16 @@ async function main() {
     await readJson(
       VIDEO_DATA_PATH,
       []
+    );
+
+  const anniversaryData =
+    await readJson(
+      ANNIVERSARY_DATA_PATH,
+      {
+        channelAnniversary: {
+          lastSentYear: 0
+        }
+      }
     );
 
   const isInitialRun =
@@ -2238,6 +2463,12 @@ async function main() {
     }
   }
 
+  const anniversaryUpdated =
+  await checkChannelAnniversary(
+    channels,
+    anniversaryData
+  );
+
   await writeJson(
     VIDEO_DATA_PATH,
     videoData
@@ -2246,6 +2477,20 @@ async function main() {
   console.log(
     'videoData.json を更新しました。'
   );
+
+  if (
+    anniversaryUpdated
+  ) {
+
+    await writeJson(
+      ANNIVERSARY_DATA_PATH,
+      anniversaryData
+    );
+
+    console.log(
+      'anniversaryData.json を更新しました。'
+    );
+  }
 
   if (
     isInitialRun
