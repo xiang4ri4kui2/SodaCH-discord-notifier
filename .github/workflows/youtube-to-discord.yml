@@ -37,6 +37,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add data/videoData.json data/worksMasterCache.json
+          git add data/videoData.json data/worksMasterCache.json data/anniversaryData.json
           git diff --cached --quiet || git commit -m "Update video data"
           git push
