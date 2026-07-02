@@ -7,8 +7,11 @@ const CHANNELS_PATH =
 const VIDEO_DATA_PATH =
   'data/videoData.json';
 
-const WORKS_MASTER_PATH =
-  'data/worksMaster.json';
+const WORKS_MASTER_URL =
+  'https://raw.githubusercontent.com/xiang4ri4kui/SodaCH-works-classifier/main/data/worksMaster.json';
+
+const WORKS_MASTER_CACHE_PATH =
+  'data/worksMasterCache.json';
 
 const YOUTUBE_RSS_PREFIX =
   'https://www.youtube.com/feeds/videos.xml?channel_id=';
@@ -1651,11 +1654,53 @@ async function main() {
   const isInitialRun =
     videoData.length === 0;
 
-  const worksMaster =
-    await readJson(
-      WORKS_MASTER_PATH,
-      null
+  let worksMaster = null;
+
+  try {
+    const wmResponse =
+      await fetch(
+        WORKS_MASTER_URL
+      );
+
+    if (wmResponse.ok) {
+      worksMaster =
+        await wmResponse.json();
+
+      // キャッシュ保存
+      await writeJson(
+        WORKS_MASTER_CACHE_PATH,
+        worksMaster
+      );
+
+      console.log(
+        `worksMaster fetch成功: ${WORKS_MASTER_URL}`
+      );
+
+    } else {
+      console.warn(
+        `worksMaster fetch失敗: HTTP ${wmResponse.status}` +
+        `、キャッシュにフォールバックします。`
+      );
+
+      worksMaster =
+        await readJson(
+          WORKS_MASTER_CACHE_PATH,
+          null
+        );
+    }
+
+  } catch (error) {
+    console.warn(
+      `worksMaster fetchエラー: ${error.message}` +
+      `、キャッシュにフォールバックします。`
     );
+
+    worksMaster =
+      await readJson(
+        WORKS_MASTER_CACHE_PATH,
+        null
+      );
+  }
   
   let initialTestPosted =
     false;
