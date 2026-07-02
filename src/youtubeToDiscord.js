@@ -1534,6 +1534,270 @@ async function postThumbnailChangeToDiscord(
   return true;
 }
 
+function buildChannelAnniversaryMessage(
+  anniversary
+) {
+  return (
+    `🎊 **${anniversary}周年（CH創設記念日）** 🎊
+
+ワシソダCH創設、**${anniversary}周年**おめでとうソダ～！🥳
+
+🎉曽田すかい＠ワシソダch🎉
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+async function postChannelAnniversaryToDiscord(
+  channels,
+  anniversary
+) {
+  const message =
+    buildChannelAnniversaryMessage(
+      anniversary
+    );
+
+  for (
+    const channel of channels
+  ) {
+
+    const webhookUrls =
+      getWebhookUrls(
+        channel
+      );
+
+    for (
+      const webhookUrl of webhookUrls
+    ) {
+
+      const body = {
+        username:
+          channel.channelName,
+
+        avatar_url:
+          channel.channelIconUrl ||
+          undefined,
+
+        tts:
+          false,
+
+        content:
+          message,
+
+        flags:
+          4096,
+
+        allowed_mentions:
+          {
+            parse:
+              []
+          }
+      };
+
+      const response =
+        await fetch(
+          webhookUrl,
+          {
+            method:
+              'POST',
+
+            headers:
+              {
+                'content-type':
+                  'application/json'
+              },
+
+            body:
+              JSON.stringify(
+                body
+              )
+          }
+        );
+
+      if (
+        response.status ===
+        429
+      ) {
+
+        const retryAfter =
+          Number(
+            response.headers.get(
+              'retry-after'
+            ) || 10
+          );
+
+        console.error(
+          `Discord rate limit。${retryAfter}秒待機します。`
+        );
+
+        await sleep(
+          retryAfter *
+            1000
+        );
+
+        continue;
+      }
+
+      if (
+        !response.ok
+      ) {
+
+        const text =
+          await response.text();
+
+        throw new Error(
+          `Discord投稿失敗: HTTP ${response.status} ${text}`
+        );
+      }
+
+      await sleep(
+        DISCORD_MIN_INTERVAL_MS
+      );
+    }
+  }
+
+  return true;
+}
+
+async function checkChannelAnniversary(
+  channels,
+  anniversaryData
+) {
+
+  const now =
+    new Date();
+
+  const japanNow =
+    new Date(
+      now.toLocaleString(
+        'en-US',
+        {
+          timeZone:
+            'Asia/Tokyo'
+        }
+      )
+    );
+
+  const year =
+    japanNow.getFullYear();
+
+  const month =
+    japanNow.getMonth() +
+    1;
+
+  const day =
+    japanNow.getDate();
+
+  if (
+    month !==
+      CHANNEL_ANNIVERSARY_MONTH ||
+    day !==
+      CHANNEL_ANNIVERSARY_DAY
+  ) {
+
+    return false;
+  }
+
+  const lastSentYear =
+    anniversaryData
+      ?.channelAnniversary
+      ?.lastSentYear ??
+    0;
+
+  if (
+    lastSentYear ===
+    year
+  ) {
+
+    console.log(
+      '今年の周年通知は送信済みです。'
+    );
+
+    return false;
+  }
+
+  const anniversary =
+    year -
+    CHANNEL_OPEN_YEAR;
+
+  await postChannelAnniversaryToDiscord(
+    channels,
+    anniversary
+  );
+
+  anniversaryData.channelAnniversary.lastSentYear =
+    year;
+
+  console.log(
+    `${anniversary}周年通知を送信しました。`
+  );
+
+  return true;
+}
+
+function classifyVideo(
+  video,
+  worksMaster
+) {
+  if (
+    !worksMaster ||
+    !video?.title
+  ) {
+    return null;
+  }
+
+  const works =
+    worksMaster.works || [];
+
+  const caseSensitive =
+    worksMaster
+      .defaultMatch
+      ?.caseSensitive ??
+    false;
+
+  const searchTitle =
+    caseSensitive
+      ? video.title
+      : video.title.toLowerCase();
+
+  for (
+    const work of works
+  ) {
+    if (
+      !work.patterns ||
+      work.patterns
+        .length === 0
+    ) {
+      continue;
+    }
+
+    for (
+      const pattern of
+      work.patterns
+    ) {
+      const searchPattern =
+        caseSensitive
+          ? pattern
+          : pattern.toLowerCase();
+
+      if (
+        searchTitle.includes(
+          searchPattern
+        )
+      ) {
+        return work;
+      }
+    }
+  }
+
+  // fallback
+  return (
+    works.find(
+      w =>
+        w.id === 'unidentified'
+    ) || null
+  );
+}
+
 function createVideoState(
   channel,
   item,
@@ -2209,11 +2473,15 @@ async function main() {
     }
   }
 
+  // 一時的に周年通知を無効化
   const anniversaryUpdated =
-    await checkChannelAnniversary(
-      channels,
-      anniversaryData
-    );
+    false;
+
+  // const anniversaryUpdated =
+  //  await checkChannelAnniversary(
+  //    channels,
+  //    anniversaryData
+  //  );
 
   await writeJson(
     VIDEO_DATA_PATH,
