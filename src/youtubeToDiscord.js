@@ -1191,8 +1191,10 @@ function buildWorkFields(
     return undefined;
   }
 
-  return [
-    {
+  const fields = [];
+
+  if (workInfo.name) {
+    fields.push({
       name:
         '作品',
 
@@ -1201,18 +1203,25 @@ function buildWorkFields(
 
       inline:
         false
-    },
-    {
+    });
+  }
+
+  if (workInfo.url) {
+    fields.push({
       name:
         '作品ページ',
 
       value:
-        workInfo.url || '',
+        workInfo.url,
 
       inline:
         false
-    }
-  ];
+    });
+  }
+
+  return fields.length > 0
+    ? fields
+    : undefined;
 }
 
 function buildEmbed(
