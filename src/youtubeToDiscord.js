@@ -1715,7 +1715,7 @@ async function checkChannelAnniversary(
     year
   ) {
     console.log(
-      '今年の周年通知は送信済みです。'
+      '今年のchannelAnniversary通知は送信済みです。'
     );
 
     return false;
@@ -1816,7 +1816,7 @@ async function checkStreamAnniversary(
     year
   ) {
     console.log(
-      '今年の配信開始記念日通知は送信済みです。'
+      '今年のstreamAnniversary通知は送信済みです。'
     );
 
     return false;
