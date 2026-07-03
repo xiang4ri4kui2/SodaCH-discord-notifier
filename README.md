@@ -4,7 +4,7 @@
 
 **曽田すかい@ワシソダch** の更新を Discord に通知するための notifier です。<br>
 YouTube RSS と「ライブ」頁を監視し、動画投稿, ショート投稿, ライブ配信, サムネイルの差し替え, メンバーシップ限定配信を Discord に通知します。<br>
-また、[SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) と連携して、動画・配信の「作品名」と「作品公式サイト URL 」も、併せて表示します。<br>
+また、 [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) と連携して、動画・配信の「作品名」と「作品公式サイト URL 」も、併せて表示します。<br>
 更に、CH創設記念日（7/3）と配信開始記念日（7/11）の周年通知、及び各記念日のカウントダウン通知にも対応しています。<br>
 現在、試験運用中です。<br>
 <br>
