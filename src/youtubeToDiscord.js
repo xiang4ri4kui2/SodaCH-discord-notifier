@@ -1232,7 +1232,7 @@ function buildWorkDescription(
   }
 
   const lines = [
-    '✌Today\'s Title✌'
+    '✌Today\'s Menu✌'
   ];
 
   if (
