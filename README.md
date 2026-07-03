@@ -4,12 +4,16 @@
 
 **曽田すかい@ワシソダch** の更新を Discord に通知するための notifier です。<br>
 YouTube RSS と「ライブ」頁を監視し、動画投稿, ショート投稿, ライブ配信, サムネイルの差し替え, メンバーシップ限定配信を Discord に通知します。<br>
+また、[SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) と連携して、動画・配信の「作品名」と「作品公式サイト URL 」も、併せて表示します。<br>
+更に、CH創設記念日（7/3）と配信開始記念日（7/11）の周年通知、及び各記念日のカウントダウン通知にも対応しています。<br>
 現在、試験運用中です。<br>
 <br>
 This notifier sends updates from the YouTube channel **"曽田すかい@ワシソダch"** to Discord.<br>
 It monitors the YouTube RSS feed and the channel's Live page, and notifies Discord about video uploads, Shorts uploads, live stream events, thumbnail changes, and members-only stream events.<br>
+It also integrates with [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) to display the work title and official site URL in Discord notifications.<br>
+Additionally, it supports anniversary notifications and countdown notifications for the channel founding date (July 3rd) and the stream start date (July 11th).<br>
 Currently under trial operation.<br>
-<br>
+
 ### 対象チャンネル / Target Channel
 
 **曽田すかい@ワシソダch**<br>
@@ -26,16 +30,20 @@ https://www.youtube.com/@BabiSodaSky
 * ライブ配信枠（配信予定）の作成
 * ライブ配信開始
 * ライブ配信終了
-* サムネイルの差し替え
 * メンバーシップ限定配信枠（配信予定）の作成
 * メンバーシップ限定配信開始
 * メンバーシップ限定配信終了
+* サムネイルの差し替え
+* CH創設記念日（7/3）の周年通知
+* 配信開始記念日（7/11）の周年通知
+* 各周年カウントダウン通知（3ヶ月前, 2ヶ月前, 1ヶ月前, 半月前, 3日前, 2日前, 1日前）
 
 Discord 通知では、以下を表示します。
 
 * 日時（※メンバーシップ限定配信を除く）
 * タイトル
 * 動画 / 配信 URL
+* 作品名・作品公式サイト URL （ [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) による分類結果に基づく）
 * サムネイル画像
 
 This notifier supports the following notifications:
@@ -45,16 +53,20 @@ This notifier supports the following notifications:
 * Live stream scheduling
 * Live stream starts
 * Live stream ends
-* Thumbnail changes
 * Members-only live stream scheduling
 * Members-only live stream starts
 * Members-only live stream ends
+* Thumbnail changes
+* Channel founding anniversary notification (July 3rd)
+* Stream start anniversary notification (July 11th)
+* Anniversary countdown notifications (3 months / 2 months / 1 month / 2 weeks / 3 days / 2 days / 1 day before)
 
 Discord notifications include:
 
 * Date and time (except members-only streams)
 * Title
 * Video / stream URL
+* Work title and official site URL (based on classification by [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier))
 * Thumbnail image
 
 ---
@@ -63,7 +75,7 @@ Discord notifications include:
 
 負荷分散のため、GitHub Actions は **15分間隔（毎時07分, 22分, 37分, 52分）** で実行しています。
 
-To distribute system load, the workflow runs every **15 minutes** at: **07, 22, 37, and 52 minutes past every hour**.
+To distribute system load, the workflow runs **every 15 minutes** at: **07, 22, 37, and 52 minutes past every hour**.
 
 ---
 
@@ -95,9 +107,9 @@ This project is currently **not licensed**.
 ## 免責事項 / Disclaimer
 
 本プロジェクトは **非公式のファンメイド** です。<br>
-「曽田すかい@ワシソダch」や関係者とは一切関係ありません。<br>
+「曽田すかい@ワシソダch」や関係者とは、一切関係ありません。<br>
 但し、本 notifier の運用については **「曽田すかい@ワシソダch」より公認** を得ています。<br>
-本ツールは個人的な通知用途を目的として作成されています。<br>
+本ツールは、個人的な通知用途を目的として作成されています。<br>
 <br>
 This project is an **unofficial fan-made project**.<br>
 It is not affiliated with, endorsed by, or associated with **"曽田すかい@ワシソダch"** or its related parties.<br>
