@@ -64,7 +64,7 @@ Discord notifications include:
 * Date and time (except members-only streams)
 * Title
 * Video / stream URL
-* Work title and official site URL (based on classification by [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier))
+* Work title and official site URL (based on classification by [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) )
 * Thumbnail image
 
 ---
