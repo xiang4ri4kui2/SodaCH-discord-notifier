@@ -1226,29 +1226,32 @@ function buildWorkDescription(
 ) {
   if (
     !workInfo ||
-    workInfo.id === 'chat' ||
     workInfo.id === 'unidentified'
   ) {
     return undefined;
   }
 
-  const lines = [];
+  const lines = [
+    '✌Today\'s Title✌'
+  ];
 
-  if (workInfo.name) {
-    lines.push(
-      `**${workInfo.name}**`
-    );
+  if (
+    workInfo.id === 'chat'
+  ) {
+    lines.push('雑談');
+
+  } else {
+
+    if (workInfo.name) {
+      lines.push(workInfo.name);
+    }
+
+    if (workInfo.url) {
+      lines.push(workInfo.url);
+    }
   }
 
-  if (workInfo.url) {
-    lines.push(
-      workInfo.url
-    );
-  }
-
-  return lines.length > 0
-    ? lines.join('\n')
-    : undefined;
+  return lines.join('\n');
 }
 
 function buildEmbed(
@@ -1918,7 +1921,7 @@ function buildCountdownMessage(
 
 ワシソダCHの創設記念日（7/3） or 配信開始記念日（7/11）、${label}前ソダ～✨
 
-✅曽田すかい＠ワシソダch✅
+👉曽田すかい＠ワシソダch👈
 ${CHANNEL_ANNIVERSARY_URL}`
   );
 }
