@@ -38,20 +38,20 @@ const STREAM_OPEN_YEAR =
   2020;
 
 const COUNTDOWN_DATES = [
-  { month: 4,  day: 3,  label: '3ヶ月' },
-  { month: 4,  day: 11, label: '3ヶ月' },
-  { month: 5,  day: 3,  label: '2ヶ月' },
-  { month: 5,  day: 11, label: '2ヶ月' },
-  { month: 6,  day: 3,  label: '1ヶ月' },
-  { month: 6,  day: 11, label: '1ヶ月' },
-  { month: 6,  day: 18, label: '半月' },
-  { month: 6,  day: 26, label: '半月' },
-  { month: 6,  day: 30, label: '3日' },
-  { month: 7,  day: 1,  label: '2日' },
-  { month: 7,  day: 2,  label: '1日' },
-  { month: 7,  day: 8,  label: '3日' },
-  { month: 7,  day: 9,  label: '2日' },
-  { month: 7,  day: 10, label: '1日' }
+  { month: 4,  day: 3,  label: '3ヶ月', target: '7/3（CH創設記念日）' },
+  { month: 4,  day: 11, label: '3ヶ月', target: '7/11（配信開始記念日）' },
+  { month: 5,  day: 3,  label: '2ヶ月', target: '7/3（CH創設記念日）' },
+  { month: 5,  day: 11, label: '2ヶ月', target: '7/11（配信開始記念日）' },
+  { month: 6,  day: 3,  label: '1ヶ月', target: '7/3（CH創設記念日）' },
+  { month: 6,  day: 11, label: '1ヶ月', target: '7/11（配信開始記念日）' },
+  { month: 6,  day: 18, label: '半月',  target: '7/3（CH創設記念日）' },
+  { month: 6,  day: 26, label: '半月',  target: '7/11（配信開始記念日）' },
+  { month: 6,  day: 30, label: '3日',   target: '7/3（CH創設記念日）' },
+  { month: 7,  day: 1,  label: '2日',   target: '7/3（CH創設記念日）' },
+  { month: 7,  day: 2,  label: '1日',   target: '7/3（CH創設記念日）' },
+  { month: 7,  day: 8,  label: '3日',   target: '7/11（配信開始記念日）' },
+  { month: 7,  day: 9,  label: '2日',   target: '7/11（配信開始記念日）' },
+  { month: 7,  day: 10, label: '1日',   target: '7/11（配信開始記念日）' }
 ];
 
 const YOUTUBE_RSS_PREFIX =
@@ -936,7 +936,22 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
         ?.richGridRenderer;
 
     if (!richGrid) {
-      console.error('streamsタブが見つかりませんでした。');
+      console.error(
+        'streamsタブが見つかりませんでした。'
+      );
+
+      console.debug(
+        'tabs構造:',
+        JSON.stringify(
+          tabs.map(
+            tab =>
+              tab.tabRenderer?.title
+          ),
+          null,
+          2
+        )
+      );
+
       return [];
     }
 
@@ -1295,63 +1310,88 @@ async function sendToWebhooks(
   for (
     const webhookUrl of webhookUrls
   ) {
-    const response =
-      await fetch(
-        webhookUrl,
-        {
-          method:
-            'POST',
+    const maxRetries =
+      3;
 
-          headers:
-            {
-              'content-type':
-                'application/json'
-            },
+    let attempt =
+      0;
 
-          body:
-            JSON.stringify(
-              body
-            )
-        }
-      );
-
-    if (
-      response.status ===
-      429
+    while (
+      attempt < maxRetries
     ) {
-      const retryAfter =
-        Number(
-          response.headers.get(
-            'retry-after'
-          ) || 10
+      const response =
+        await fetch(
+          webhookUrl,
+          {
+            method:
+              'POST',
+
+            headers:
+              {
+                'content-type':
+                  'application/json'
+              },
+
+            body:
+              JSON.stringify(
+                body
+              )
+          }
         );
 
-      console.error(
-        `Discord rate limit。${retryAfter}秒待機します。`
-      );
+      if (
+        response.status ===
+        429
+      ) {
+        attempt++;
+
+        const retryAfter =
+          Number(
+            response.headers.get(
+              'retry-after'
+            ) || 10
+          );
+
+        console.error(
+          `Discord rate limit。${retryAfter}秒待機します。` +
+          `(試行 ${attempt}/${maxRetries})`
+        );
+
+        await sleep(
+          retryAfter *
+            1000
+        );
+
+        continue;
+      }
+
+      if (
+        !response.ok
+      ) {
+        const text =
+          await response.text();
+
+        throw new Error(
+          `Discord投稿失敗: HTTP ${response.status} ${text}`
+        );
+      }
 
       await sleep(
-        retryAfter *
-          1000
+        DISCORD_MIN_INTERVAL_MS
       );
 
-      continue;
+      break;
     }
 
     if (
-      !response.ok
+      attempt >=
+      maxRetries
     ) {
-      const text =
-        await response.text();
-
-      throw new Error(
-        `Discord投稿失敗: HTTP ${response.status} ${text}`
+      console.error(
+        `Discord rate limit超過。` +
+        `${webhookUrl} への投稿を断念しました。`
       );
     }
-
-    await sleep(
-      DISCORD_MIN_INTERVAL_MS
-    );
   }
 }
 
@@ -1779,12 +1819,13 @@ function classifyVideo(
 
 function buildCountdownMessage(
   anniversary,
-  label
+  label,
+  target
 ) {
   return (
     `⏳**${anniversary}周年カウントダウン**⏳
 
-ワシソダCHの創設記念日（7/3） or 配信開始記念日（7/11）、${label}前ソダ～✨
+ワシソダCHの${target}、${label}前ソダ～✨
 
 👉曽田すかい＠ワシソダch👈
 ${CHANNEL_ANNIVERSARY_URL}`
@@ -1862,7 +1903,8 @@ async function checkCountdown(
     channels,
     buildCountdownMessage(
       anniversary,
-      todayEntry.label
+      todayEntry.label,
+      todayEntry.target
     )
   );
 
@@ -1871,7 +1913,6 @@ async function checkCountdown(
     .sentKeys
     .push(key);
 
-  // 前年以前の古いキーを削除
   anniversaryData
     .countdown
     .sentKeys =
@@ -1897,6 +1938,10 @@ function createVideoState(
   item,
   info
 ) {
+  const now =
+    new Date()
+      .toISOString();
+
   return {
     videoId:
       item.videoId,
@@ -1936,12 +1981,10 @@ function createVideoState(
       ),
 
     firstSeenAt:
-      new Date()
-        .toISOString(),
+      now,
 
     lastSeenAt:
-      new Date()
-        .toISOString(),
+      now,
 
     thumbnailHash:
       null,
