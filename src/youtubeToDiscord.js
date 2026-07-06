@@ -1539,6 +1539,46 @@ async function postThumbnailChangeToDiscord(
   return true;
 }
 
+// JST基準の今日の年月日を取得する共通ヘルパー
+function getTodayJST() {
+  const formatter =
+    new Intl.DateTimeFormat(
+      'ja-JP',
+      {
+        timeZone:
+          'Asia/Tokyo',
+
+        year:
+          'numeric',
+
+        month:
+          '2-digit',
+
+        day:
+          '2-digit'
+      }
+    );
+
+  const parts =
+    formatter.formatToParts(
+      new Date()
+    );
+
+  const get =
+    type =>
+      Number(
+        parts
+          .find(p => p.type === type)
+          ?.value
+      );
+
+  return {
+    year:  get('year'),
+    month: get('month'),
+    day:   get('day')
+  };
+}
+
 function buildChannelAnniversaryMessage(
   anniversary
 ) {
@@ -1552,7 +1592,7 @@ ${CHANNEL_ANNIVERSARY_URL}`
   );
 }
 
-async function postChannelAnniversaryToDiscord(
+async function postAnniversaryToDiscord(
   channels,
   message
 ) {
@@ -1663,40 +1703,11 @@ async function checkChannelAnniversary(
   channels,
   anniversaryData
 ) {
-  const formatter =
-    new Intl.DateTimeFormat(
-      'ja-JP',
-      {
-        timeZone:
-          'Asia/Tokyo',
-
-        year:
-          'numeric',
-
-        month:
-          '2-digit',
-
-        day:
-          '2-digit'
-      }
-    );
-
-  const parts =
-    formatter.formatToParts(
-      new Date()
-    );
-
-  const get =
-    type =>
-      Number(
-        parts
-          .find(p => p.type === type)
-          ?.value
-      );
-
-  const year =  get('year');
-  const month = get('month');
-  const day =   get('day');
+  const {
+    year,
+    month,
+    day
+  } = getTodayJST();
 
   if (
     month !==
@@ -1764,40 +1775,11 @@ async function checkStreamAnniversary(
   channels,
   anniversaryData
 ) {
-  const formatter =
-    new Intl.DateTimeFormat(
-      'ja-JP',
-      {
-        timeZone:
-          'Asia/Tokyo',
-
-        year:
-          'numeric',
-
-        month:
-          '2-digit',
-
-        day:
-          '2-digit'
-      }
-    );
-
-  const parts =
-    formatter.formatToParts(
-      new Date()
-    );
-
-  const get =
-    type =>
-      Number(
-        parts
-          .find(p => p.type === type)
-          ?.value
-      );
-
-  const year =  get('year');
-  const month = get('month');
-  const day =   get('day');
+  const {
+    year,
+    month,
+    day
+  } = getTodayJST();
 
   if (
     month !==
@@ -1930,40 +1912,11 @@ async function checkCountdown(
   channels,
   anniversaryData
 ) {
-  const formatter =
-    new Intl.DateTimeFormat(
-      'ja-JP',
-      {
-        timeZone:
-          'Asia/Tokyo',
-
-        year:
-          'numeric',
-
-        month:
-          '2-digit',
-
-        day:
-          '2-digit'
-      }
-    );
-
-  const parts =
-    formatter.formatToParts(
-      new Date()
-    );
-
-  const get =
-    type =>
-      Number(
-        parts
-          .find(p => p.type === type)
-          ?.value
-      );
-
-  const year =  get('year');
-  const month = get('month');
-  const day =   get('day');
+  const {
+    year,
+    month,
+    day
+  } = getTodayJST();
 
   const todayEntry =
     COUNTDOWN_DATES.find(
@@ -2149,6 +2102,12 @@ async function main() {
       {
         channelAnniversary: {
           lastSentYear: 0
+        },
+        streamAnniversary: {
+          lastSentYear: 0
+        },
+        countdown: {
+          sentKeys: []
         }
       }
     );
