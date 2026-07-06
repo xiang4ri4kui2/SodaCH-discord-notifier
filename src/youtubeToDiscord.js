@@ -1288,72 +1288,13 @@ function buildEmbed(
   };
 }
 
-async function postToDiscord(
-  channel,
-  video,
-  workInfo = null,
-  isInitialTest = false
+async function sendToWebhooks(
+  webhookUrls,
+  body
 ) {
-  const webhookUrls =
-    getWebhookUrls(
-      channel
-    );
-
-  const videoUrl =
-    getYouTubeVideoUrl(
-      video.videoId
-    );
-
-  const thumbnailUrl =
-    getYouTubeThumbnailUrl(
-      video.videoId
-    );
-
-  const message =
-    buildNotificationMessage(
-      video
-    );
-
-  const content =
-    isInitialTest
-      ? `【初回テスト通知】
-${message}`
-      : message;
-
   for (
     const webhookUrl of webhookUrls
   ) {
-    const body = {
-      username:
-        channel.channelName,
-
-      avatar_url:
-        channel.channelIconUrl ||
-        undefined,
-
-      tts:
-        false,
-
-      content,
-
-      flags:
-        4096,
-
-      allowed_mentions:
-        {
-          parse:
-            []
-        },
-
-      embeds: [
-        buildEmbed(
-          videoUrl,
-          thumbnailUrl,
-          workInfo
-        )
-      ]
-    };
-
     const response =
       await fetch(
         webhookUrl,
@@ -1412,11 +1353,76 @@ ${message}`
       DISCORD_MIN_INTERVAL_MS
     );
   }
+}
+
+async function postToDiscord(
+  channel,
+  video,
+  workInfo = null,
+  isInitialTest = false
+) {
+  const webhookUrls =
+    getWebhookUrls(
+      channel
+    );
+
+  const videoUrl =
+    getYouTubeVideoUrl(
+      video.videoId
+    );
+
+  const thumbnailUrl =
+    getYouTubeThumbnailUrl(
+      video.videoId
+    );
+
+  const message =
+    buildNotificationMessage(
+      video
+    );
+
+  const content =
+    isInitialTest
+      ? `【初回テスト通知】\n${message}`
+      : message;
+
+  await sendToWebhooks(
+    webhookUrls,
+    {
+      username:
+        channel.channelName,
+
+      avatar_url:
+        channel.channelIconUrl ||
+        undefined,
+
+      tts:
+        false,
+
+      content,
+
+      flags:
+        4096,
+
+      allowed_mentions:
+        {
+          parse:
+            []
+        },
+
+      embeds: [
+        buildEmbed(
+          videoUrl,
+          thumbnailUrl,
+          workInfo
+        )
+      ]
+    }
+  );
 
   return true;
 }
 
-// サムネイル差し替え通知送信
 async function postThumbnailChangeToDiscord(
   channel,
   video,
@@ -1442,10 +1448,9 @@ async function postThumbnailChangeToDiscord(
       video
     );
 
-  for (
-    const webhookUrl of webhookUrls
-  ) {
-    const body = {
+  await sendToWebhooks(
+    webhookUrls,
+    {
       username:
         channel.channelName,
 
@@ -1475,66 +1480,8 @@ async function postThumbnailChangeToDiscord(
           workInfo
         )
       ]
-    };
-
-    const response =
-      await fetch(
-        webhookUrl,
-        {
-          method:
-            'POST',
-
-          headers:
-            {
-              'content-type':
-                'application/json'
-            },
-
-          body:
-            JSON.stringify(
-              body
-            )
-        }
-      );
-
-    if (
-      response.status ===
-      429
-    ) {
-      const retryAfter =
-        Number(
-          response.headers.get(
-            'retry-after'
-          ) || 10
-        );
-
-      console.error(
-        `Discord rate limit。${retryAfter}秒待機します。`
-      );
-
-      await sleep(
-        retryAfter *
-          1000
-      );
-
-      continue;
     }
-
-    if (
-      !response.ok
-    ) {
-      const text =
-        await response.text();
-
-      throw new Error(
-        `Discord投稿失敗: HTTP ${response.status} ${text}`
-      );
-    }
-
-    await sleep(
-      DISCORD_MIN_INTERVAL_MS
-    );
-  }
+  );
 
   return true;
 }
@@ -1596,21 +1543,17 @@ async function postAnniversaryToDiscord(
   channels,
   message
 ) {
-
   for (
     const channel of channels
   ) {
-
     const webhookUrls =
       getWebhookUrls(
         channel
       );
 
-    for (
-      const webhookUrl of webhookUrls
-    ) {
-
-      const body = {
+    await sendToWebhooks(
+      webhookUrls,
+      {
         username:
           channel.channelName,
 
@@ -1632,68 +1575,8 @@ async function postAnniversaryToDiscord(
             parse:
               []
           }
-      };
-
-      const response =
-        await fetch(
-          webhookUrl,
-          {
-            method:
-              'POST',
-
-            headers:
-              {
-                'content-type':
-                  'application/json'
-              },
-
-            body:
-              JSON.stringify(
-                body
-              )
-          }
-        );
-
-      if (
-        response.status ===
-        429
-      ) {
-
-        const retryAfter =
-          Number(
-            response.headers.get(
-              'retry-after'
-            ) || 10
-          );
-
-        console.error(
-          `Discord rate limit。${retryAfter}秒待機します。`
-        );
-
-        await sleep(
-          retryAfter *
-            1000
-        );
-
-        continue;
       }
-
-      if (
-        !response.ok
-      ) {
-
-        const text =
-          await response.text();
-
-        throw new Error(
-          `Discord投稿失敗: HTTP ${response.status} ${text}`
-        );
-      }
-
-      await sleep(
-        DISCORD_MIN_INTERVAL_MS
-      );
-    }
+    );
   }
 
   return true;
