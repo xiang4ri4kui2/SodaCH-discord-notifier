@@ -37,21 +37,75 @@ const STREAM_ANNIVERSARY_DAY =
 const STREAM_OPEN_YEAR =
   2020;
 
+const SUBSCRIBER_1000_MONTH =
+  9;
+
+const SUBSCRIBER_1000_DAY =
+  30;
+
+const SUBSCRIBER_1000_YEAR =
+  2023;
+
+const WASHISODA_BIRTHDAY_MONTH =
+  10;
+
+const WASHISODA_BIRTHDAY_DAY =
+  20;
+
+const BABISODA_BIRTHDAY_MONTH =
+  1;
+
+const BABISODA_BIRTHDAY_DAY =
+  14;
+
+const BABISODA_BIRTH_YEAR =
+  2021;
+
 const COUNTDOWN_DATES = [
-  { month: 4,  day: 3,  label: '3ヶ月', target: '7/3（CH創設記念日）' },
-  { month: 4,  day: 11, label: '3ヶ月', target: '7/11（配信開始記念日）' },
-  { month: 5,  day: 3,  label: '2ヶ月', target: '7/3（CH創設記念日）' },
-  { month: 5,  day: 11, label: '2ヶ月', target: '7/11（配信開始記念日）' },
-  { month: 6,  day: 3,  label: '1ヶ月', target: '7/3（CH創設記念日）' },
-  { month: 6,  day: 11, label: '1ヶ月', target: '7/11（配信開始記念日）' },
-  { month: 6,  day: 18, label: '半月',  target: '7/3（CH創設記念日）' },
-  { month: 6,  day: 26, label: '半月',  target: '7/11（配信開始記念日）' },
-  { month: 6,  day: 30, label: '3日',   target: '7/3（CH創設記念日）' },
-  { month: 7,  day: 1,  label: '2日',   target: '7/3（CH創設記念日）' },
-  { month: 7,  day: 2,  label: '1日',   target: '7/3（CH創設記念日）' },
-  { month: 7,  day: 8,  label: '3日',   target: '7/11（配信開始記念日）' },
-  { month: 7,  day: 9,  label: '2日',   target: '7/11（配信開始記念日）' },
-  { month: 7,  day: 10, label: '1日',   target: '7/11（配信開始記念日）' }
+  // CH創設記念日 (7/3)
+  { id: 'ch_3mo', month: 4, day: 3, label: '3ヶ月', kind: 'anniversary', target: '7/3（CH創設記念日）', anniversaryBaseYear: CHANNEL_OPEN_YEAR },
+  { id: 'ch_2mo', month: 5, day: 3, label: '2ヶ月', kind: 'anniversary', target: '7/3（CH創設記念日）', anniversaryBaseYear: CHANNEL_OPEN_YEAR },
+  { id: 'ch_1mo', month: 6, day: 3, label: '1ヶ月', kind: 'anniversary', target: '7/3（CH創設記念日）', anniversaryBaseYear: CHANNEL_OPEN_YEAR },
+  { id: 'ch_2w', month: 6, day: 18, label: '半月', kind: 'anniversary', target: '7/3（CH創設記念日）', anniversaryBaseYear: CHANNEL_OPEN_YEAR },
+  { id: 'ch_3d', month: 6, day: 30, label: '3日', kind: 'anniversary', target: '7/3（CH創設記念日）', anniversaryBaseYear: CHANNEL_OPEN_YEAR },
+  { id: 'ch_2d', month: 7, day: 1, label: '2日', kind: 'anniversary', target: '7/3（CH創設記念日）', anniversaryBaseYear: CHANNEL_OPEN_YEAR },
+  { id: 'ch_1d', month: 7, day: 2, label: '1日', kind: 'anniversary', target: '7/3（CH創設記念日）', anniversaryBaseYear: CHANNEL_OPEN_YEAR },
+
+  // 配信開始記念日 (7/11)
+  { id: 'str_3mo', month: 4, day: 11, label: '3ヶ月', kind: 'anniversary', target: '7/11（配信開始記念日）', anniversaryBaseYear: STREAM_OPEN_YEAR },
+  { id: 'str_2mo', month: 5, day: 11, label: '2ヶ月', kind: 'anniversary', target: '7/11（配信開始記念日）', anniversaryBaseYear: STREAM_OPEN_YEAR },
+  { id: 'str_1mo', month: 6, day: 11, label: '1ヶ月', kind: 'anniversary', target: '7/11（配信開始記念日）', anniversaryBaseYear: STREAM_OPEN_YEAR },
+  { id: 'str_2w', month: 6, day: 26, label: '半月', kind: 'anniversary', target: '7/11（配信開始記念日）', anniversaryBaseYear: STREAM_OPEN_YEAR },
+  { id: 'str_3d', month: 7, day: 8, label: '3日', kind: 'anniversary', target: '7/11（配信開始記念日）', anniversaryBaseYear: STREAM_OPEN_YEAR },
+  { id: 'str_2d', month: 7, day: 9, label: '2日', kind: 'anniversary', target: '7/11（配信開始記念日）', anniversaryBaseYear: STREAM_OPEN_YEAR },
+  { id: 'str_1d', month: 7, day: 10, label: '1日', kind: 'anniversary', target: '7/11（配信開始記念日）', anniversaryBaseYear: STREAM_OPEN_YEAR },
+
+  // CH登録者数1,000人突破記念日 (9/30)
+  { id: 'sub_3mo', month: 6, day: 30, label: '3ヶ月', kind: 'anniversary', target: 'CH登録者数1,000人突破記念日', anniversaryBaseYear: SUBSCRIBER_1000_YEAR },
+  { id: 'sub_2mo', month: 7, day: 30, label: '2ヶ月', kind: 'anniversary', target: 'CH登録者数1,000人突破記念日', anniversaryBaseYear: SUBSCRIBER_1000_YEAR },
+  { id: 'sub_1mo', month: 8, day: 30, label: '1ヶ月', kind: 'anniversary', target: 'CH登録者数1,000人突破記念日', anniversaryBaseYear: SUBSCRIBER_1000_YEAR },
+  { id: 'sub_2w', month: 9, day: 15, label: '半月', kind: 'anniversary', target: 'CH登録者数1,000人突破記念日', anniversaryBaseYear: SUBSCRIBER_1000_YEAR },
+  { id: 'sub_3d', month: 9, day: 27, label: '3日', kind: 'anniversary', target: 'CH登録者数1,000人突破記念日', anniversaryBaseYear: SUBSCRIBER_1000_YEAR },
+  { id: 'sub_2d', month: 9, day: 28, label: '2日', kind: 'anniversary', target: 'CH登録者数1,000人突破記念日', anniversaryBaseYear: SUBSCRIBER_1000_YEAR },
+  { id: 'sub_1d', month: 9, day: 29, label: '1日', kind: 'anniversary', target: 'CH登録者数1,000人突破記念日', anniversaryBaseYear: SUBSCRIBER_1000_YEAR },
+
+  // 曽田すかいのお誕生日 (10/20)
+  { id: 'ws_3mo', month: 7, day: 20, label: '3ヶ月', kind: 'birthday_washisoda', target: '曽田すかいのお誕生日', anniversaryBaseYear: null },
+  { id: 'ws_2mo', month: 8, day: 20, label: '2ヶ月', kind: 'birthday_washisoda', target: '曽田すかいのお誕生日', anniversaryBaseYear: null },
+  { id: 'ws_1mo', month: 9, day: 20, label: '1ヶ月', kind: 'birthday_washisoda', target: '曽田すかいのお誕生日', anniversaryBaseYear: null },
+  { id: 'ws_2w', month: 10, day: 5, label: '半月', kind: 'birthday_washisoda', target: '曽田すかいのお誕生日', anniversaryBaseYear: null },
+  { id: 'ws_3d', month: 10, day: 17, label: '3日', kind: 'birthday_washisoda', target: '曽田すかいのお誕生日', anniversaryBaseYear: null },
+  { id: 'ws_2d', month: 10, day: 18, label: '2日', kind: 'birthday_washisoda', target: '曽田すかいのお誕生日', anniversaryBaseYear: null },
+  { id: 'ws_1d', month: 10, day: 19, label: '1日', kind: 'birthday_washisoda', target: '曽田すかいのお誕生日', anniversaryBaseYear: null },
+
+  // バ美ソダちゃんのお誕生日 (1/14)
+  { id: 'bs_3mo', month: 10, day: 14, label: '3ヶ月', kind: 'birthday_babisoda', target: 'バ美ソダちゃんのお誕生日', anniversaryBaseYear: BABISODA_BIRTH_YEAR },
+  { id: 'bs_2mo', month: 11, day: 14, label: '2ヶ月', kind: 'birthday_babisoda', target: 'バ美ソダちゃんのお誕生日', anniversaryBaseYear: BABISODA_BIRTH_YEAR },
+  { id: 'bs_1mo', month: 12, day: 14, label: '1ヶ月', kind: 'birthday_babisoda', target: 'バ美ソダちゃんのお誕生日', anniversaryBaseYear: BABISODA_BIRTH_YEAR },
+  { id: 'bs_2w', month: 12, day: 30, label: '半月', kind: 'birthday_babisoda', target: 'バ美ソダちゃんのお誕生日', anniversaryBaseYear: BABISODA_BIRTH_YEAR },
+  { id: 'bs_3d', month: 1, day: 11, label: '3日', kind: 'birthday_babisoda', target: 'バ美ソダちゃんのお誕生日', anniversaryBaseYear: BABISODA_BIRTH_YEAR },
+  { id: 'bs_2d', month: 1, day: 12, label: '2日', kind: 'birthday_babisoda', target: 'バ美ソダちゃんのお誕生日', anniversaryBaseYear: BABISODA_BIRTH_YEAR },
+  { id: 'bs_1d', month: 1, day: 13, label: '1日', kind: 'birthday_babisoda', target: 'バ美ソダちゃんのお誕生日', anniversaryBaseYear: BABISODA_BIRTH_YEAR },
 ];
 
 const YOUTUBE_RSS_PREFIX =
@@ -1570,7 +1624,7 @@ function buildChannelAnniversaryMessage(
   anniversary
 ) {
   return (
-    `🎊 **${anniversary}周年（CH創設記念日）** 🎊
+    `🎊**${anniversary}周年（CH創設記念日）**🎊
 
 ワシソダCHの創設、**${anniversary}周年**おめでとうソダ～！🥳
 
@@ -1675,7 +1729,7 @@ async function checkChannelAnniversary(
     year;
 
   console.log(
-    `${anniversary}周年通知を送信しました。`
+    `CH創設${anniversary}周年通知を送信しました。`
   );
 
   return true;
@@ -1685,7 +1739,7 @@ function buildStreamAnniversaryMessage(
   anniversary
 ) {
   return (
-    `🎊 **${anniversary}周年（配信開始記念日）** 🎊
+    `🎊**${anniversary}周年（配信開始記念日）**🎊
 
 ワシソダCHの配信開始、**${anniversary}周年**おめでとうソダ～！🥳
 
@@ -1748,6 +1802,214 @@ async function checkStreamAnniversary(
 
   console.log(
     `配信開始${anniversary}周年通知を送信しました。`
+  );
+
+  return true;
+}
+
+function buildSubscriber1000Message(
+  anniversary
+) {
+  return (
+    `🎊**${anniversary}周年（CH登録者数1,000人突破記念日）**🎊
+
+ワシソダCHのチャンネル登録者数1,000人突破、**${anniversary}周年**おめでとうソダ～！🥳
+
+🎉曽田すかい＠ワシソダch🎉
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+async function checkSubscriber1000(
+  channels,
+  anniversaryData
+) {
+  const {
+    year,
+    month,
+    day
+  } = getTodayJST();
+
+  if (
+    month !==
+      SUBSCRIBER_1000_MONTH ||
+    day !==
+      SUBSCRIBER_1000_DAY
+  ) {
+    return false;
+  }
+
+  const lastSentYear =
+    anniversaryData
+      ?.subscriber1000
+      ?.lastSentYear ??
+    0;
+
+  if (
+    lastSentYear ===
+    year
+  ) {
+    console.log(
+      '今年のsubscriber1000通知は送信済みです。'
+    );
+
+    return false;
+  }
+
+  const anniversary =
+    year -
+    SUBSCRIBER_1000_YEAR;
+
+  await postAnniversaryToDiscord(
+    channels,
+    buildSubscriber1000Message(
+      anniversary
+    )
+  );
+
+  anniversaryData
+    .subscriber1000
+    .lastSentYear =
+    year;
+
+  console.log(
+    `CH登録者数1,000人突破${anniversary}周年通知を送信しました。`
+  );
+
+  return true;
+}
+
+function buildWashisodaBirthdayMessage() {
+  return (
+    `🎂**曽田すかいのお誕生日**🎂
+
+ソダさん、今年も、お誕生日おめでとうソダ～！🥳
+
+🎉曽田すかい＠ワシソダch🎉
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+async function checkWashisodaBirthday(
+  channels,
+  anniversaryData
+) {
+  const {
+    year,
+    month,
+    day
+  } = getTodayJST();
+
+  if (
+    month !==
+      WASHISODA_BIRTHDAY_MONTH ||
+    day !==
+      WASHISODA_BIRTHDAY_DAY
+  ) {
+    return false;
+  }
+
+  const lastSentYear =
+    anniversaryData
+      ?.washisodaBirthday
+      ?.lastSentYear ??
+    0;
+
+  if (
+    lastSentYear ===
+    year
+  ) {
+    console.log(
+      '今年のwashisodaBirthday通知は送信済みです。'
+    );
+
+    return false;
+  }
+
+  await postAnniversaryToDiscord(
+    channels,
+    buildWashisodaBirthdayMessage()
+  );
+
+  anniversaryData
+    .washisodaBirthday
+    .lastSentYear =
+    year;
+
+  console.log(
+    '曽田すかい誕生日通知を送信しました。'
+  );
+
+  return true;
+}
+
+function buildBabisodaBirthdayMessage(
+  anniversary
+) {
+  return (
+    `🎂**バ美ソダちゃんのお誕生日**🎂
+
+バ美ソダちゃん、お誕生日（${anniversary}歳）おめでとうソダ～！🥳
+
+🎉曽田すかい＠ワシソダch🎉
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+async function checkBabisodaBirthday(
+  channels,
+  anniversaryData
+) {
+  const {
+    year,
+    month,
+    day
+  } = getTodayJST();
+
+  if (
+    month !==
+      BABISODA_BIRTHDAY_MONTH ||
+    day !==
+      BABISODA_BIRTHDAY_DAY
+  ) {
+    return false;
+  }
+
+  const lastSentYear =
+    anniversaryData
+      ?.babisodaBirthday
+      ?.lastSentYear ??
+    0;
+
+  if (
+    lastSentYear ===
+    year
+  ) {
+    console.log(
+      '今年のbabisodaBirthday通知は送信済みです。'
+    );
+
+    return false;
+  }
+
+  const anniversary =
+    year -
+    BABISODA_BIRTH_YEAR;
+
+  await postAnniversaryToDiscord(
+    channels,
+    buildBabisodaBirthdayMessage(
+      anniversary
+    )
+  );
+
+  anniversaryData
+    .babisodaBirthday
+    .lastSentYear =
+    year;
+
+  console.log(
+    `バ美ソダちゃん誕生日（${anniversary}歳）通知を送信しました。`
   );
 
   return true;
@@ -1832,6 +2094,33 @@ ${CHANNEL_ANNIVERSARY_URL}`
   );
 }
 
+function buildWashisodaCountdownMessage(
+  label
+) {
+  return (
+    `⏳**お誕生日カウントダウン**⏳
+
+ソダさんのお誕生日、${label}前ソダ～✨
+
+👉曽田すかい＠ワシソダch👈
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+function buildBabisodaCountdownMessage(
+  anniversary,
+  label
+) {
+  return (
+    `⏳**お誕生日カウントダウン**⏳
+
+バ美ソダちゃんのお誕生日（${anniversary}歳）、${label}前ソダ～✨
+
+👉曽田すかい＠ワシソダch👈
+${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
 async function checkCountdown(
   channels,
   anniversaryData
@@ -1842,25 +2131,18 @@ async function checkCountdown(
     day
   } = getTodayJST();
 
-  const todayEntry =
-    COUNTDOWN_DATES.find(
+  const todayEntries =
+    COUNTDOWN_DATES.filter(
       d =>
         d.month === month &&
         d.day === day
     );
 
-  if (!todayEntry) {
+  if (
+    todayEntries.length === 0
+  ) {
     return false;
   }
-
-  const monthStr =
-    String(month).padStart(2, '0');
-
-  const dayStr =
-    String(day).padStart(2, '0');
-
-  const key =
-    `${year}_${monthStr}_${dayStr}`;
 
   if (
     !anniversaryData.countdown
@@ -1882,37 +2164,101 @@ async function checkCountdown(
       .sentKeys = [];
   }
 
-  if (
+  let anyUpdated =
+    false;
+
+  for (
+    const entry of todayEntries
+  ) {
+    const key =
+      `${year}_${entry.id}`;
+
+    if (
+      anniversaryData
+        .countdown
+        .sentKeys
+        .includes(key)
+    ) {
+      console.log(
+        `カウントダウン通知は送信済みです。(${key})`
+      );
+
+      continue;
+    }
+
+    let message;
+
+    if (
+      entry.kind ===
+      'anniversary'
+    ) {
+      const anniversary =
+        year -
+        entry.anniversaryBaseYear;
+
+      message =
+        buildCountdownMessage(
+          anniversary,
+          entry.label,
+          entry.target
+        );
+
+    } else if (
+      entry.kind ===
+      'birthday_washisoda'
+    ) {
+      message =
+        buildWashisodaCountdownMessage(
+          entry.label
+        );
+
+    } else if (
+      entry.kind ===
+      'birthday_babisoda'
+    ) {
+      // 誕生日(1/14)より前の月なら今年+1歳、
+      // 誕生日直前(1月)なら今年の歳
+      const upcomingAge =
+        month >
+        BABISODA_BIRTHDAY_MONTH
+          ? (year + 1) -
+            BABISODA_BIRTH_YEAR
+          : year -
+            BABISODA_BIRTH_YEAR;
+
+      message =
+        buildBabisodaCountdownMessage(
+          upcomingAge,
+          entry.label
+        );
+
+    } else {
+      console.warn(
+        `不明なkind: ${entry.kind} (${key})`
+      );
+
+      continue;
+    }
+
+    await postAnniversaryToDiscord(
+      channels,
+      message
+    );
+
     anniversaryData
       .countdown
       .sentKeys
-      .includes(key)
-  ) {
+      .push(key);
+
     console.log(
-      `本日分のカウントダウン通知は送信済みです。(${key})`
+      `${entry.label}前カウントダウン通知を送信しました。(${key})`
     );
 
-    return false;
+    anyUpdated =
+      true;
   }
 
-  const anniversary =
-    year -
-    CHANNEL_OPEN_YEAR;
-
-  await postAnniversaryToDiscord(
-    channels,
-    buildCountdownMessage(
-      anniversary,
-      todayEntry.label,
-      todayEntry.target
-    )
-  );
-
-  anniversaryData
-    .countdown
-    .sentKeys
-    .push(key);
-
+  // 前年以前の古いキーを削除
   anniversaryData
     .countdown
     .sentKeys =
@@ -1922,15 +2268,11 @@ async function checkCountdown(
       .filter(
         k =>
           k.startsWith(
-            String(year)
+            String(year) + '_'
           )
       );
 
-  console.log(
-    `${todayEntry.label}前カウントダウン通知を送信しました。`
-  );
-
-  return true;
+  return anyUpdated;
 }
 
 function createVideoState(
@@ -2030,6 +2372,15 @@ async function main() {
           lastSentYear: 0
         },
         streamAnniversary: {
+          lastSentYear: 0
+        },
+        subscriber1000: {
+          lastSentYear: 0
+        },
+        washisodaBirthday: {
+          lastSentYear: 0
+        },
+        babisodaBirthday: {
           lastSentYear: 0
         },
         countdown: {
@@ -2616,10 +2967,6 @@ async function main() {
     }
   }
 
-  // 一時的に周年通知を無効化
-  //const anniversaryUpdated =
-  //  false;
-
   const channelAnniversaryUpdated =
     await checkChannelAnniversary(
       channels,
@@ -2628,6 +2975,24 @@ async function main() {
 
   const streamAnniversaryUpdated =
     await checkStreamAnniversary(
+      channels,
+      anniversaryData
+    );
+
+  const subscriber1000Updated =
+    await checkSubscriber1000(
+      channels,
+      anniversaryData
+    );
+
+  const washisodaBirthdayUpdated =
+    await checkWashisodaBirthday(
+      channels,
+      anniversaryData
+    );
+
+  const babisodaBirthdayUpdated =
+    await checkBabisodaBirthday(
       channels,
       anniversaryData
     );
@@ -2641,6 +3006,9 @@ async function main() {
   const anniversaryUpdated =
     channelAnniversaryUpdated ||
     streamAnniversaryUpdated ||
+    subscriber1000Updated ||
+    washisodaBirthdayUpdated ||
+    babisodaBirthdayUpdated ||
     countdownUpdated;
 
   await writeJson(
