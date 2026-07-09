@@ -1,13 +1,24 @@
 {
-  "channelAnniversary": { "lastSentYear": 2026 },
-  "streamAnniversary": { "lastSentYear": 0 },
-  "subscriber1000": { "lastSentYear": 0 },
-  "washisodaBirthday": { "lastSentYear": 0 },
-  "babisodaBirthday": { "lastSentYear": 0 },
+  "channelAnniversary": {
+    "lastSentYear": 2026
+  },
+  "streamAnniversary": {
+    "lastSentYear": 0
+  },
+  "subscriber1000": {
+    "lastSentYear": 0
+  },
+  "washisodaBirthday": {
+    "lastSentYear": 0
+  },
+  "babisodaBirthday": {
+    "lastSentYear": 0
+  },
   "countdown": {
     "sentKeys": [
       "2026_str_3d",
-      "2026_str_2d"
+      "2026_str_2d",
+      "2026_str_1d"
     ]
   }
 }
