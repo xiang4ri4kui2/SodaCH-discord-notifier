@@ -2094,6 +2094,71 @@ ${CHANNEL_ANNIVERSARY_URL}`
   );
 }
 
+function buildCombinedCountdownMessage(
+  entries,
+  year
+) {
+  const headerLines = [];
+  const bodyLines = [];
+
+  for (const entry of entries) {
+    if (
+      entry.kind === 'anniversary'
+    ) {
+      const anniversary =
+        year -
+        entry.anniversaryBaseYear;
+
+      headerLines.push(
+        `⏳**${anniversary}周年カウントダウン**⏳`
+      );
+
+      bodyLines.push(
+        `ワシソダCHの${entry.target}、${entry.label}前ソダ～✨`
+      );
+
+    } else if (
+      entry.kind === 'birthday_washisoda'
+    ) {
+      headerLines.push(
+        `⏳**お誕生日カウントダウン**⏳`
+      );
+
+      bodyLines.push(
+        `ソダさんのお誕生日、${entry.label}前ソダ～✨`
+      );
+
+    } else if (
+      entry.kind === 'birthday_babisoda'
+    ) {
+      const upcomingAge =
+        entry.month >
+        BABISODA_BIRTHDAY_MONTH
+          ? (year + 1) -
+            BABISODA_BIRTH_YEAR
+          : year -
+            BABISODA_BIRTH_YEAR;
+
+      headerLines.push(
+        `⏳**お誕生日カウントダウン**⏳`
+      );
+
+      bodyLines.push(
+        `バ美ソダちゃんのお誕生日（${upcomingAge}歳）、${entry.label}前ソダ～✨`
+      );
+    }
+  }
+
+  return (
+    headerLines.join('\n') +
+    '\n\n' +
+    bodyLines.join('\n') +
+    '\n\n' +
+    `👉曽田すかい＠ワシソダch👈\n` +
+    CHANNEL_ANNIVERSARY_URL
+  );
+}
+
 function buildWashisodaCountdownMessage(
   label
 ) {
@@ -2167,30 +2232,87 @@ async function checkCountdown(
   let anyUpdated =
     false;
 
-  for (
-    const entry of todayEntries
-  ) {
-    const key =
-      `${year}_${entry.id}`;
+  const unsentEntries =
+    todayEntries.filter(
+      entry =>
+        !anniversaryData
+          .countdown
+          .sentKeys
+          .includes(
+            `${year}_${entry.id}`
+          )
+    );
 
-    if (
+  if (
+    unsentEntries.length === 0
+  ) {
+    console.log(
+      `本日分のカウントダウン通知は全て送信済みです。`
+    );
+
+    // 古いキーのクリーンアップのみ実行
+    anniversaryData
+      .countdown
+      .sentKeys =
       anniversaryData
         .countdown
         .sentKeys
-        .includes(key)
-    ) {
-      console.log(
-        `カウントダウン通知は送信済みです。(${key})`
+        .filter(
+          k =>
+            k.startsWith(
+              String(year) + '_'
+            )
+        );
+
+    return false;
+  }
+
+  if (
+    unsentEntries.length > 1
+  ) {
+    // 複数エントリを1通にまとめて送信
+    const message =
+      buildCombinedCountdownMessage(
+        unsentEntries,
+        year
       );
 
-      continue;
+    await postAnniversaryToDiscord(
+      channels,
+      message
+    );
+
+    for (
+      const entry of unsentEntries
+    ) {
+      const key =
+        `${year}_${entry.id}`;
+
+      anniversaryData
+        .countdown
+        .sentKeys
+        .push(key);
+
+      console.log(
+        `カウントダウン通知（複合）を送信しました。(${key})`
+      );
     }
+
+    anyUpdated = true;
+
+  } else {
+
+    // 単一エントリは従来通り個別送信
+    const entry =
+      unsentEntries[0];
+
+    const key =
+      `${year}_${entry.id}`;
 
     let message;
 
     if (
-      entry.kind ===
-      'anniversary'
+      entry.kind === 'anniversary'
     ) {
       const anniversary =
         year -
@@ -2204,8 +2326,7 @@ async function checkCountdown(
         );
 
     } else if (
-      entry.kind ===
-      'birthday_washisoda'
+      entry.kind === 'birthday_washisoda'
     ) {
       message =
         buildWashisodaCountdownMessage(
@@ -2213,13 +2334,10 @@ async function checkCountdown(
         );
 
     } else if (
-      entry.kind ===
-      'birthday_babisoda'
+      entry.kind === 'birthday_babisoda'
     ) {
-      // 誕生日(1/14)より前の月なら今年+1歳、
-      // 誕生日直前(1月)なら今年の歳
       const upcomingAge =
-        month >
+        entry.month >
         BABISODA_BIRTHDAY_MONTH
           ? (year + 1) -
             BABISODA_BIRTH_YEAR
@@ -2237,7 +2355,7 @@ async function checkCountdown(
         `不明なkind: ${entry.kind} (${key})`
       );
 
-      continue;
+      return false;
     }
 
     await postAnniversaryToDiscord(
@@ -2254,8 +2372,7 @@ async function checkCountdown(
       `${entry.label}前カウントダウン通知を送信しました。(${key})`
     );
 
-    anyUpdated =
-      true;
+    anyUpdated = true;
   }
 
   // 前年以前の古いキーを削除
