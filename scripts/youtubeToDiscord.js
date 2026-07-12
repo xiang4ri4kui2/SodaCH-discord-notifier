@@ -1620,16 +1620,28 @@ function getTodayJST() {
   };
 }
 
-function buildChannelAnniversaryMessage(
+function buildAnniversaryMessage(
+  title,
+  description,
   anniversary
 ) {
   return (
-    `🎊**${anniversary}周年（CH創設記念日）**🎊
+    `🎊**${anniversary}周年（${title}）**🎊
 
-ワシソダCHの創設、**${anniversary}周年**おめでとうソダ～！🥳
+ワシソダCHの${description}**${anniversary}周年**おめでとうソダ～！🥳
 
 🎉曽田すかい＠ワシソダch🎉
 ${CHANNEL_ANNIVERSARY_URL}`
+  );
+}
+
+function buildChannelAnniversaryMessage(
+  anniversary
+) {
+  return buildAnniversaryMessage(
+    'CH創設記念日',
+    '創設、',
+    anniversary
   );
 }
 
@@ -1676,9 +1688,17 @@ async function postAnniversaryToDiscord(
   return true;
 }
 
-async function checkChannelAnniversary(
+async function checkYearlyEvent(
   channels,
-  anniversaryData
+  anniversaryData,
+  {
+    eventMonth,
+    eventDay,
+    baseYear,
+    stateKey,
+    buildMessage,
+    logLabel
+  }
 ) {
   const {
     year,
@@ -1687,17 +1707,15 @@ async function checkChannelAnniversary(
   } = getTodayJST();
 
   if (
-    month !==
-      CHANNEL_ANNIVERSARY_MONTH ||
-    day !==
-      CHANNEL_ANNIVERSARY_DAY
+    month !== eventMonth ||
+    day !== eventDay
   ) {
     return false;
   }
 
   const lastSentYear =
     anniversaryData
-      ?.channelAnniversary
+      ?.[stateKey]
       ?.lastSentYear ??
     0;
 
@@ -1706,30 +1724,28 @@ async function checkChannelAnniversary(
     year
   ) {
     console.log(
-      '今年のchannelAnniversary通知は送信済みです。'
+      `今年の${stateKey}通知は送信済みです。`
     );
 
     return false;
   }
 
   const anniversary =
-    year -
-    CHANNEL_OPEN_YEAR;
+    baseYear !== null
+      ? year - baseYear
+      : null;
 
   await postAnniversaryToDiscord(
     channels,
-    buildChannelAnniversaryMessage(
-      anniversary
-    )
+    buildMessage(anniversary)
   );
 
-  anniversaryData
-    .channelAnniversary
+  anniversaryData[stateKey]
     .lastSentYear =
     year;
 
   console.log(
-    `CH創設${anniversary}周年通知を送信しました。`
+    `${logLabel(anniversary)}通知を送信しました。`
   );
 
   return true;
@@ -1738,145 +1754,21 @@ async function checkChannelAnniversary(
 function buildStreamAnniversaryMessage(
   anniversary
 ) {
-  return (
-    `🎊**${anniversary}周年（配信開始記念日）**🎊
-
-ワシソダCHの配信開始、**${anniversary}周年**おめでとうソダ～！🥳
-
-🎉曽田すかい＠ワシソダch🎉
-${CHANNEL_ANNIVERSARY_URL}`
+  return buildAnniversaryMessage(
+    '配信開始記念日',
+    '配信開始、',
+    anniversary
   );
-}
-
-async function checkStreamAnniversary(
-  channels,
-  anniversaryData
-) {
-  const {
-    year,
-    month,
-    day
-  } = getTodayJST();
-
-  if (
-    month !==
-      STREAM_ANNIVERSARY_MONTH ||
-    day !==
-      STREAM_ANNIVERSARY_DAY
-  ) {
-    return false;
-  }
-
-  const lastSentYear =
-    anniversaryData
-      ?.streamAnniversary
-      ?.lastSentYear ??
-    0;
-
-  if (
-    lastSentYear ===
-    year
-  ) {
-    console.log(
-      '今年のstreamAnniversary通知は送信済みです。'
-    );
-
-    return false;
-  }
-
-  const anniversary =
-    year -
-    STREAM_OPEN_YEAR;
-
-  await postAnniversaryToDiscord(
-    channels,
-    buildStreamAnniversaryMessage(
-      anniversary
-    )
-  );
-
-  anniversaryData
-    .streamAnniversary
-    .lastSentYear =
-    year;
-
-  console.log(
-    `配信開始${anniversary}周年通知を送信しました。`
-  );
-
-  return true;
 }
 
 function buildSubscriber1000Message(
   anniversary
 ) {
-  return (
-    `🎊**${anniversary}周年（CH登録者数1,000人突破記念日）**🎊
-
-ワシソダCHのチャンネル登録者数1,000人突破、**${anniversary}周年**おめでとうソダ～！🥳
-
-🎉曽田すかい＠ワシソダch🎉
-${CHANNEL_ANNIVERSARY_URL}`
+  return buildAnniversaryMessage(
+    'CH登録者数1,000人突破記念日',
+    'チャンネル登録者数1,000人突破、',
+    anniversary
   );
-}
-
-async function checkSubscriber1000(
-  channels,
-  anniversaryData
-) {
-  const {
-    year,
-    month,
-    day
-  } = getTodayJST();
-
-  if (
-    month !==
-      SUBSCRIBER_1000_MONTH ||
-    day !==
-      SUBSCRIBER_1000_DAY
-  ) {
-    return false;
-  }
-
-  const lastSentYear =
-    anniversaryData
-      ?.subscriber1000
-      ?.lastSentYear ??
-    0;
-
-  if (
-    lastSentYear ===
-    year
-  ) {
-    console.log(
-      '今年のsubscriber1000通知は送信済みです。'
-    );
-
-    return false;
-  }
-
-  const anniversary =
-    year -
-    SUBSCRIBER_1000_YEAR;
-
-  await postAnniversaryToDiscord(
-    channels,
-    buildSubscriber1000Message(
-      anniversary
-    )
-  );
-
-  anniversaryData
-    .subscriber1000
-    .lastSentYear =
-    year;
-
-  console.log(
-    `CH登録者数1,000人突破${anniversary}周年通知を送信しました。`
-  );
-
-  return true;
 }
 
 function buildWashisodaBirthdayMessage() {
@@ -1890,59 +1782,6 @@ ${CHANNEL_ANNIVERSARY_URL}`
   );
 }
 
-async function checkWashisodaBirthday(
-  channels,
-  anniversaryData
-) {
-  const {
-    year,
-    month,
-    day
-  } = getTodayJST();
-
-  if (
-    month !==
-      WASHISODA_BIRTHDAY_MONTH ||
-    day !==
-      WASHISODA_BIRTHDAY_DAY
-  ) {
-    return false;
-  }
-
-  const lastSentYear =
-    anniversaryData
-      ?.washisodaBirthday
-      ?.lastSentYear ??
-    0;
-
-  if (
-    lastSentYear ===
-    year
-  ) {
-    console.log(
-      '今年のwashisodaBirthday通知は送信済みです。'
-    );
-
-    return false;
-  }
-
-  await postAnniversaryToDiscord(
-    channels,
-    buildWashisodaBirthdayMessage()
-  );
-
-  anniversaryData
-    .washisodaBirthday
-    .lastSentYear =
-    year;
-
-  console.log(
-    '曽田すかい誕生日通知を送信しました。'
-  );
-
-  return true;
-}
-
 function buildBabisodaBirthdayMessage(
   anniversary
 ) {
@@ -1954,65 +1793,6 @@ function buildBabisodaBirthdayMessage(
 🎉曽田すかい＠ワシソダch🎉
 ${CHANNEL_ANNIVERSARY_URL}`
   );
-}
-
-async function checkBabisodaBirthday(
-  channels,
-  anniversaryData
-) {
-  const {
-    year,
-    month,
-    day
-  } = getTodayJST();
-
-  if (
-    month !==
-      BABISODA_BIRTHDAY_MONTH ||
-    day !==
-      BABISODA_BIRTHDAY_DAY
-  ) {
-    return false;
-  }
-
-  const lastSentYear =
-    anniversaryData
-      ?.babisodaBirthday
-      ?.lastSentYear ??
-    0;
-
-  if (
-    lastSentYear ===
-    year
-  ) {
-    console.log(
-      '今年のbabisodaBirthday通知は送信済みです。'
-    );
-
-    return false;
-  }
-
-  const anniversary =
-    year -
-    BABISODA_BIRTH_YEAR;
-
-  await postAnniversaryToDiscord(
-    channels,
-    buildBabisodaBirthdayMessage(
-      anniversary
-    )
-  );
-
-  anniversaryData
-    .babisodaBirthday
-    .lastSentYear =
-    year;
-
-  console.log(
-    `バ美ソダちゃん誕生日（${anniversary}歳）通知を送信しました。`
-  );
-
-  return true;
 }
 
 function classifyVideo(
@@ -2392,6 +2172,52 @@ async function checkCountdown(
   return anyUpdated;
 }
 
+async function loadWorksMaster() {
+  try {
+    const wmResponse =
+      await fetch(
+        WORKS_MASTER_URL
+      );
+
+    if (wmResponse.ok) {
+      const worksMaster =
+        await wmResponse.json();
+
+      await writeJson(
+        WORKS_MASTER_CACHE_PATH,
+        worksMaster
+      );
+
+      console.log(
+        `worksMaster fetch成功: ${WORKS_MASTER_URL}`
+      );
+
+      return worksMaster;
+    }
+
+    console.warn(
+      `worksMaster fetch失敗: HTTP ${wmResponse.status}` +
+      `、キャッシュにフォールバックします。`
+    );
+
+    return await readJson(
+      WORKS_MASTER_CACHE_PATH,
+      null
+    );
+
+  } catch (error) {
+    console.warn(
+      `worksMaster fetchエラー: ${error.message}` +
+      `、キャッシュにフォールバックします。`
+    );
+
+    return await readJson(
+      WORKS_MASTER_CACHE_PATH,
+      null
+    );
+  }
+}
+
 function createVideoState(
   channel,
   item,
@@ -2509,53 +2335,8 @@ async function main() {
   const isInitialRun =
     videoData.length === 0;
 
-  let worksMaster = null;
-
-  try {
-    const wmResponse =
-      await fetch(
-        WORKS_MASTER_URL
-      );
-
-    if (wmResponse.ok) {
-      worksMaster =
-        await wmResponse.json();
-
-      // キャッシュ保存
-      await writeJson(
-        WORKS_MASTER_CACHE_PATH,
-        worksMaster
-      );
-
-      console.log(
-        `worksMaster fetch成功: ${WORKS_MASTER_URL}`
-      );
-
-    } else {
-      console.warn(
-        `worksMaster fetch失敗: HTTP ${wmResponse.status}` +
-        `、キャッシュにフォールバックします。`
-      );
-
-      worksMaster =
-        await readJson(
-          WORKS_MASTER_CACHE_PATH,
-          null
-        );
-    }
-
-  } catch (error) {
-    console.warn(
-      `worksMaster fetchエラー: ${error.message}` +
-      `、キャッシュにフォールバックします。`
-    );
-
-    worksMaster =
-      await readJson(
-        WORKS_MASTER_CACHE_PATH,
-        null
-      );
-  }
+  const worksMaster =
+    await loadWorksMaster();
   
   let initialTestPosted =
     false;
@@ -3085,33 +2866,105 @@ async function main() {
   }
 
   const channelAnniversaryUpdated =
-    await checkChannelAnniversary(
+    await checkYearlyEvent(
       channels,
-      anniversaryData
+      anniversaryData,
+      {
+        eventMonth:
+          CHANNEL_ANNIVERSARY_MONTH,
+        eventDay:
+          CHANNEL_ANNIVERSARY_DAY,
+        baseYear:
+          CHANNEL_OPEN_YEAR,
+        stateKey:
+          'channelAnniversary',
+        buildMessage:
+          buildChannelAnniversaryMessage,
+        logLabel:
+          n => `CH創設${n}周年`
+      }
     );
 
   const streamAnniversaryUpdated =
-    await checkStreamAnniversary(
+    await checkYearlyEvent(
       channels,
-      anniversaryData
+      anniversaryData,
+      {
+        eventMonth:
+          STREAM_ANNIVERSARY_MONTH,
+        eventDay:
+          STREAM_ANNIVERSARY_DAY,
+        baseYear:
+          STREAM_OPEN_YEAR,
+        stateKey:
+          'streamAnniversary',
+        buildMessage:
+          buildStreamAnniversaryMessage,
+        logLabel:
+          n => `配信開始${n}周年`
+      }
     );
 
   const subscriber1000Updated =
-    await checkSubscriber1000(
+    await checkYearlyEvent(
       channels,
-      anniversaryData
+      anniversaryData,
+      {
+        eventMonth:
+          SUBSCRIBER_1000_MONTH,
+        eventDay:
+          SUBSCRIBER_1000_DAY,
+        baseYear:
+          SUBSCRIBER_1000_YEAR,
+        stateKey:
+          'subscriber1000',
+        buildMessage:
+          buildSubscriber1000Message,
+        logLabel:
+          n =>
+            `CH登録者数1,000人突破${n}周年`
+      }
     );
 
   const washisodaBirthdayUpdated =
-    await checkWashisodaBirthday(
+    await checkYearlyEvent(
       channels,
-      anniversaryData
+      anniversaryData,
+      {
+        eventMonth:
+          WASHISODA_BIRTHDAY_MONTH,
+        eventDay:
+          WASHISODA_BIRTHDAY_DAY,
+        baseYear:
+          null,
+        stateKey:
+          'washisodaBirthday',
+        buildMessage:
+          buildWashisodaBirthdayMessage,
+        logLabel:
+          () => 'ソダさん誕生日'
+      }
     );
 
   const babisodaBirthdayUpdated =
-    await checkBabisodaBirthday(
+    await checkYearlyEvent(
       channels,
-      anniversaryData
+      anniversaryData,
+      {
+        eventMonth:
+          BABISODA_BIRTHDAY_MONTH,
+        eventDay:
+          BABISODA_BIRTHDAY_DAY,
+        baseYear:
+          BABISODA_BIRTH_YEAR,
+        stateKey:
+          'babisodaBirthday',
+        buildMessage:
+          buildBabisodaBirthdayMessage,
+        logLabel:
+          n =>
+            `バ美ソダちゃん誕生日（${n}歳）`
+      }
     );
 
   const countdownUpdated =
