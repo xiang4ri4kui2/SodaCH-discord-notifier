@@ -1737,9 +1737,11 @@ async function checkYearlyEvent(
 
   await postAnniversaryToDiscord(
     channels,
-    buildMessage(anniversary)
+    anniversary !== null
+      ? buildMessage(anniversary)
+      : buildMessage()
   );
-
+  
   anniversaryData[stateKey]
     .lastSentYear =
     year;
