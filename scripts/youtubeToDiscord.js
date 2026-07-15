@@ -169,6 +169,54 @@ function getTagText(
     : '';
 }
 
+const HTML_ENTITY_MAP = {
+  '&amp;': '&',
+  '&quot;': '"',
+  '&#39;': "'",
+  '&apos;': "'",
+  '&lt;': '<',
+  '&gt;': '>',
+  '&nbsp;': ' '
+};
+
+function decodeHtmlEntities(
+  text
+) {
+  if (
+    !text ||
+    typeof text !==
+      'string'
+  ) {
+    return text;
+  }
+
+  return text
+    .replace(
+      /&#x([0-9a-fA-F]+);/g,
+      (_, hex) =>
+        String.fromCodePoint(
+          Number.parseInt(
+            hex,
+            16
+          )
+        )
+    )
+    .replace(
+      /&#(\d+);/g,
+      (_, dec) =>
+        String.fromCodePoint(
+          Number(dec)
+        )
+    )
+    .replace(
+      /&(amp|quot|#39|apos|lt|gt|nbsp);/g,
+      match =>
+        HTML_ENTITY_MAP[
+          match
+        ]
+    );
+}
+
 function parseYouTubeFeed(
   xml
 ) {
@@ -186,9 +234,11 @@ function parseYouTubeFeed(
 
       return {
         title:
-          getTagText(
-            entry,
-            'title'
+          decodeHtmlEntities(
+            getTagText(
+              entry,
+              'title'
+            )
           ),
 
         updated:
@@ -713,8 +763,10 @@ async function fetchLatestItemsByYouTubeApi(
     .map(
       item => ({
         title:
-          item.snippet
-            .title,
+          decodeHtmlEntities(
+            item.snippet
+              .title,
+          ),
 
         updated:
           item.snippet
@@ -834,8 +886,10 @@ async function fetchVideoInfo(
 
   return {
     title:
-      item.snippet
-        .title,
+      decodeHtmlEntities(
+        item.snippet
+          .title,
+      ),
 
     liveBroadcastContent,
 
@@ -1138,7 +1192,11 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
     ) {
       results.push({
         videoId,
-        title,
+
+        title:
+          decodeHtmlEntities(
+            title
+          ),
 
         scheduledStartTime:
           parseScheduledDateJST(
