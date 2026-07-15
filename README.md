@@ -4,7 +4,7 @@
 
 **曽田すかい@ワシソダch** の更新を Discord に通知するための notifier です。<br>
 YouTube RSS と「ライブ」頁を監視し、動画投稿, ショート投稿, ライブ配信, サムネイルの差し替え, メンバーシップ限定配信を Discord に通知します。<br>
-また、 [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) と連携して、動画・配信の「作品名」と「作品公式サイト URL 」も、併せて表示します。<br>
+また、[SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) と連携して、動画・配信の「作品名」と「作品公式サイト URL」も、併せて表示します。<br>
 更に、CH創設記念日（7/3）、配信開始記念日（7/11）、チャンネル登録者数 1,000 人突破記念日（9/30）、曽田すかい誕生日（10/20）、バ美ソダちゃん誕生日（1/14）の周年通知、及び各記念日のカウントダウン通知にも対応しています。<br>
 <br>
 This notifier sends updates from the YouTube channel **"曽田すかい@ワシソダch"** to Discord.<br>
@@ -40,7 +40,7 @@ Discord 通知では、以下を表示します。
 * 日時（※メンバーシップ限定配信を除く）
 * タイトル
 * 動画 / 配信 URL
-* 作品名・作品公式サイト URL （ [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) による分類結果に基づく）
+* 作品名・作品公式サイト URL（[SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) による分類結果に基づく）
 * サムネイル画像
 
 This notifier supports the following notifications:
@@ -62,7 +62,7 @@ Discord notifications include:
 * Date and time (except members-only streams)
 * Title
 * Video / stream URL
-* Work title and official site URL (based on classification by [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) )
+* Work title and official site URL (based on classification by [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier))
 * Thumbnail image
 
 ---
