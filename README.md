@@ -5,12 +5,12 @@
 **曽田すかい@ワシソダch** の更新を Discord に通知するための notifier です。<br>
 YouTube RSS と「ライブ」頁を監視し、動画投稿, ショート投稿, ライブ配信, サムネイルの差し替え, メンバーシップ限定配信を Discord に通知します。<br>
 また、 [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) と連携して、動画・配信の「作品名」と「作品公式サイト URL 」も、併せて表示します。<br>
-更に、CH創設記念日（7/3）と配信開始記念日（7/11）の周年通知、及び各記念日のカウントダウン通知にも対応しています。<br>
+更に、CH創設記念日（7/3）、配信開始記念日（7/11）、チャンネル登録者数 1,000 人突破記念日（9/30）、曽田すかい誕生日（10/20）、バ美ソダちゃん誕生日（1/14）の周年通知、及び各記念日のカウントダウン通知にも対応しています。<br>
 <br>
 This notifier sends updates from the YouTube channel **"曽田すかい@ワシソダch"** to Discord.<br>
 It monitors the YouTube RSS feed and the channel's Live page, and notifies Discord about video uploads, Shorts uploads, live stream events, thumbnail changes, and members-only stream events.<br>
-It also integrates with [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) to display the work title and official site URL in Discord notifications.<br>
-Additionally, it supports anniversary notifications and countdown notifications for the channel founding date (July 3rd) and the stream start date (July 11th).
+It also integrates with [SodaCH Works Classifier](https://github.com/xiang4ri4kui2/SodaCH-works-classifier) to display the work title and official site URL alongside each notification.<br>
+Additionally, it supports anniversary and countdown notifications for the channel founding date (July 3), the stream debut date (July 11), the 1,000-subscriber milestone (September 30), SodaSky's birthday (October 20), and BabiSoda-chan's birthday (January 14).
 
 ### 対象チャンネル / Target Channel
 
@@ -32,8 +32,7 @@ https://www.youtube.com/@BabiSodaSky
 * メンバーシップ限定配信開始
 * メンバーシップ限定配信終了
 * サムネイルの差し替え
-* CH創設記念日（7/3）の周年通知
-* 配信開始記念日（7/11）の周年通知
+* CH創設記念日（7/3）, 配信開始記念日（7/11）, チャンネル登録者数 1,000 人突破記念日（9/30）, 曽田すかい誕生日（10/20）, バ美ソダちゃん誕生日（1/14）の周年通知
 * 各周年カウントダウン通知（3ヶ月前, 2ヶ月前, 1ヶ月前, 半月前, 3日前, 2日前, 1日前）
 
 Discord 通知では、以下を表示します。
@@ -55,8 +54,7 @@ This notifier supports the following notifications:
 * Members-only live stream starts
 * Members-only live stream ends
 * Thumbnail changes
-* Channel founding anniversary notification (July 3rd)
-* Stream start anniversary notification (July 11th)
+* Anniversary notifications for the channel founding date (July 3), stream debut date (July 11), 1,000-subscriber milestone (September 30), SodaSky's birthday (October 20), and BabiSoda-chan's birthday (January 14)
 * Anniversary countdown notifications (3 months / 2 months / 1 month / 2 weeks / 3 days / 2 days / 1 day before)
 
 Discord notifications include:
