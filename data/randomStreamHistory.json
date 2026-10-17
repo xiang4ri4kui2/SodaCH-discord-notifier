@@ -1,23 +1,4 @@
 {
   "retentionDays": 90,
-  "sentDates": [
-    {
-      "dateJST": "2026-10-17",
-      "sentAt": "2026-10-17T09:14:15.438Z",
-      "videoIds": [
-        "JucWbAhrW0M",
-        "nzlinVYCM_E",
-        "bCoAwFVmXqA",
-        "Ty50r1vLWAI",
-        "sLSxbKN-q-M",
-        "8W8E--epIU8",
-        "8t2BffGBTGI",
-        "am1OnPptC4M",
-        "yhQRRW7u418",
-        "KMXfXTMlJYU",
-        "BI8I-LHC_OI",
-        "nxK4pMErN3s"
-      ]
-    }
-  ]
+  "sentDates": []
 }
