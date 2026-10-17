@@ -23,6 +23,10 @@ const WEBHOOK_ENV_NAMES = [
 // DRY_RUN=true: select and log candidates without posting or updating history.
 const DRY_RUN = process.env.DRY_RUN === 'true';
 
+// Allows a manual test run to post again on the same JST date.
+// Defaults to false for normal scheduled execution.
+const ALLOW_SAME_DAY_REPEAT = process.env.ALLOW_SAME_DAY_REPEAT === 'true';
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function readJsonArray(filePath) {
@@ -116,8 +120,7 @@ function formatDateJST(value) {
     day: '2-digit',
   }).formatToParts(new Date(value));
 
-  const get = (type) =>
-    parts.find((part) => part.type === type)?.value;
+  const get = (type) => parts.find((part) => part.type === type)?.value;
 
   const year = get('year');
   const month = get('month');
@@ -217,14 +220,11 @@ async function getCurrentAccessibleVideos(videoIds) {
   const url = new URL(`${API_BASE_URL}/videos`);
 
   url.searchParams.set('part', 'snippet,status');
-
   url.searchParams.set('id', videoIds.join(','));
-
   url.searchParams.set(
     'fields',
     'items(id,snippet(title,channelId),status(privacyStatus))',
   );
-
   url.searchParams.set('key', getApiKey());
 
   let lastError;
@@ -335,8 +335,10 @@ async function selectTwoCurrentlyAccessible(masterCandidates) {
       }
     }
 
+    const checked = Math.min(offset + batch.length, shuffled.length);
+
     console.log(
-      `[CHECK] checked=${Math.min(offset + batch.length, shuffled.length)}/${shuffled.length}, ` +
+      `[CHECK] checked=${checked}/${shuffled.length}, ` +
         `accessible=${selected.length}`,
     );
   }
@@ -453,12 +455,12 @@ async function main() {
   // Read-only inputs: neither streamsMaster.json nor
   // videoData.json is modified by this script.
   const channels = await readJsonArray(CHANNELS_PATH);
-
   const masterRows = await readJsonArray(STREAMS_MASTER_PATH);
-
   const history = await readHistory(HISTORY_PATH);
 
-  const channel = channels.find((item) => item?.channelId === TARGET_CHANNEL_ID);
+  const channel = channels.find(
+    (item) => item?.channelId === TARGET_CHANNEL_ID,
+  );
 
   if (!channel) {
     throw new Error(
@@ -471,7 +473,9 @@ async function main() {
 
   const alreadySentToday = retained.some((entry) => entry.dateJST === today);
 
-  if (alreadySentToday && !DRY_RUN) {
+  // Normal/scheduled runs retain the same-day duplicate guard.
+  // An explicitly enabled manual test may bypass this guard.
+  if (alreadySentToday && !DRY_RUN && !ALLOW_SAME_DAY_REPEAT) {
     console.log(
       `A recommendation has already been sent for ${today} JST. ` +
         'Skipping duplicate run.',
@@ -480,13 +484,18 @@ async function main() {
     return;
   }
 
+  if (alreadySentToday && !DRY_RUN && ALLOW_SAME_DAY_REPEAT) {
+    console.warn('Same-day duplicate guard overridden for manual testing.');
+  }
+
   const eligible = getEligibleMasterRecords(masterRows);
 
+  // Videos already recommended within the retention window remain
+  // excluded, even when the same-day guard is overridden.
   const candidates = eligible.filter((row) => !recentSentIds.has(row.videoId));
 
   console.log(`JST date: ${today}`);
   console.log(`streamsMaster records: ${masterRows.length}`);
-
   console.log(`Eligible completed archives: ${eligible.length}`);
 
   console.log(
@@ -495,8 +504,8 @@ async function main() {
   );
 
   console.log(`Candidates to check: ${candidates.length}`);
-
   console.log(`Mode: ${DRY_RUN ? 'DRY RUN' : 'LIVE'}`);
+  console.log(`Allow same-day repeat: ${ALLOW_SAME_DAY_REPEAT}`);
 
   if (candidates.length < DAILY_PICK_COUNT) {
     throw new Error(
@@ -537,7 +546,6 @@ async function main() {
   }
 
   const payload = buildDiscordPayload(channel, selected, today);
-
   const webhookUrls = getWebhookUrls();
 
   for (const [index, webhookUrl] of webhookUrls.entries()) {
@@ -554,6 +562,18 @@ async function main() {
 
   const cutoff = jstDateOffset(today, -(HISTORY_RETENTION_DAYS - 1));
 
+  // Preserve today's prior entries when a manual test posts again.
+  const previousTodayVideoIds = retained
+    .filter((entry) => entry.dateJST === today)
+    .flatMap((entry) => entry.videoIds);
+
+  const todayVideoIds = [
+    ...new Set([
+      ...previousTodayVideoIds,
+      ...selected.map((row) => row.videoId),
+    ]),
+  ];
+
   const sentDates = [
     ...retained.filter(
       (entry) => entry.dateJST >= cutoff && entry.dateJST < today,
@@ -562,7 +582,7 @@ async function main() {
     {
       dateJST: today,
       sentAt: new Date().toISOString(),
-      videoIds: selected.map((row) => row.videoId),
+      videoIds: todayVideoIds,
     },
   ];
 
