@@ -9,6 +9,12 @@ on:
         type: boolean
         default: false
 
+      allow_same_day_repeat:
+        description: "Allow another Discord post today for manual testing"
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: write
 
@@ -40,6 +46,7 @@ jobs:
           DISCORD_WEBHOOK_URL_FOR_ME: ${{ secrets.DISCORD_WEBHOOK_URL_FOR_ME }}
           DISCORD_WEBHOOK_URL_FOR_SODA: ${{ secrets.DISCORD_WEBHOOK_URL_FOR_SODA }}
           DRY_RUN: ${{ inputs.dry_run }}
+          ALLOW_SAME_DAY_REPEAT: ${{ inputs.allow_same_day_repeat }}
 
       - name: Commit updated random stream history
         run: |
