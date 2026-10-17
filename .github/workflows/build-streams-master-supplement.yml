@@ -1,0 +1,47 @@
+name: Build Streams Master Supplement
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-streams-master-supplement
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Check JavaScript syntax
+        run: node --check scripts/buildStreamsMasterSupplement.js
+
+      - name: Build streams master supplement
+        run: node scripts/buildStreamsMasterSupplement.js
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+
+      - name: Commit updated supplement report
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add -- data/streamsMasterSupplement.json
+
+          if git diff --cached --quiet; then
+            echo "No changes to streamsMasterSupplement.json."
+          else
+            git commit -m "Build streams master supplement report"
+            git push
+          fi
