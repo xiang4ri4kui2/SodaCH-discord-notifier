@@ -2,44 +2,32 @@ import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
 
 const CHANNELS_PATH = 'data/channels.json';
-
 const VIDEO_DATA_PATH = 'data/videoData.json';
+const STREAMS_MASTER_PATH = 'data/streamsMaster.json';
 
 const WORKS_MASTER_URL =
   'https://raw.githubusercontent.com/xiang4ri4kui2/SodaCH-works-classifier/main/data/worksMaster.json';
-
 const WORKS_MASTER_CACHE_PATH = 'data/worksMasterCache.json';
-
 const ANNIVERSARY_DATA_PATH = 'data/anniversaryData.json';
 
 const CHANNEL_ANNIVERSARY_MONTH = 7;
-
 const CHANNEL_ANNIVERSARY_DAY = 3;
-
 const CHANNEL_OPEN_YEAR = 2020;
-
 const CHANNEL_ANNIVERSARY_URL = 'https://www.youtube.com/@BabiSodaSky';
 
 const STREAM_ANNIVERSARY_MONTH = 7;
-
 const STREAM_ANNIVERSARY_DAY = 11;
-
 const STREAM_OPEN_YEAR = 2020;
 
 const SUBSCRIBER_1000_MONTH = 9;
-
 const SUBSCRIBER_1000_DAY = 30;
-
 const SUBSCRIBER_1000_YEAR = 2023;
 
 const WASHISODA_BIRTHDAY_MONTH = 10;
-
 const WASHISODA_BIRTHDAY_DAY = 20;
 
 const BABISODA_BIRTHDAY_MONTH = 1;
-
 const BABISODA_BIRTHDAY_DAY = 14;
-
 const BABISODA_BIRTH_YEAR = 2021;
 
 const COUNTDOWN_DATES = [
@@ -373,10 +361,9 @@ const YOUTUBE_RSS_PREFIX =
   'https://www.youtube.com/feeds/videos.xml?channel_id=';
 
 const DISCORD_MIN_INTERVAL_MS = 3000;
+const HTTP_TIMEOUT_MS = 15000;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const HTTP_TIMEOUT_MS = 15000;
 
 async function fetchWithTimeout(
   input,
@@ -412,6 +399,28 @@ async function readJson(path, fallback) {
   } catch {
     return fallback;
   }
+}
+
+async function readJsonStrict(path, fallback) {
+  let text;
+
+  try {
+    text = await fs.readFile(path, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return fallback;
+    }
+
+    throw error;
+  }
+
+  const data = JSON.parse(text);
+
+  if (!Array.isArray(data)) {
+    throw new Error(`${path} の最上位データは配列である必要があります。`);
+  }
+
+  return data;
 }
 
 async function writeJson(path, data) {
@@ -462,13 +471,9 @@ function parseYouTubeFeed(xml) {
 
       return {
         title: decodeHtmlEntities(getTagText(entry, 'title')),
-
         updated: getTagText(entry, 'updated'),
-
         published: getTagText(entry, 'published'),
-
         videoId: getTagText(entry, 'yt:videoId'),
-
         source: 'rss',
       };
     })
@@ -488,17 +493,11 @@ function formatDateForMessage(dateString) {
 
   const formatter = new Intl.DateTimeFormat('ja-JP', {
     timeZone: 'Asia/Tokyo',
-
     year: 'numeric',
-
     month: '2-digit',
-
     day: '2-digit',
-
     hour: '2-digit',
-
     minute: '2-digit',
-
     hour12: false,
   });
 
@@ -523,11 +522,8 @@ function convertDurationToHHMMSS(duration) {
   }
 
   const days = matches[1] ? Number.parseInt(matches[1], 10) : 0;
-
   const hours = matches[2] ? Number.parseInt(matches[2], 10) : 0;
-
   const minutes = matches[3] ? Number.parseInt(matches[3], 10) : 0;
-
   const seconds = matches[4] ? Number.parseInt(matches[4], 10) : 0;
 
   const totalHours = days * 24 + hours;
@@ -624,11 +620,8 @@ function findExisting(videoData, videoId) {
 
 const VALID_TRANSITIONS = {
   upcoming: ['upcoming', 'live', 'archive'],
-
   live: ['live', 'archive'],
-
   archive: ['archive'],
-
   video: ['video'],
 };
 
@@ -638,7 +631,6 @@ function shouldProcessItem(existing, newLive) {
   }
 
   const current = existing.live;
-
   const allowed = VALID_TRANSITIONS[current] || [];
 
   return allowed.includes(newLive);
@@ -728,20 +720,14 @@ async function fetchLatestItemsByYouTubeApi(channelId) {
   const url = new URL('https://www.googleapis.com/youtube/v3/search');
 
   url.searchParams.set('part', 'snippet');
-
   url.searchParams.set('channelId', channelId);
-
   url.searchParams.set('order', 'date');
-
   url.searchParams.set('type', 'video');
-
   url.searchParams.set('maxResults', '5');
-
   url.searchParams.set(
     'fields',
     'items(id(videoId),snippet(title,publishedAt))',
   );
-
   url.searchParams.set('key', apiKey);
 
   const response = await fetchWithTimeout(url, {}, 15000, 'YouTube Search API');
@@ -757,13 +743,9 @@ async function fetchLatestItemsByYouTubeApi(channelId) {
   return (data.items || [])
     .map((item) => ({
       title: decodeHtmlEntities(item.snippet.title),
-
       updated: item.snippet.publishedAt,
-
       published: item.snippet.publishedAt,
-
       videoId: item.id.videoId,
-
       source: 'youtubeApi',
     }))
     .filter((item) => item.videoId);
@@ -780,16 +762,13 @@ async function fetchVideoInfo(videoId) {
 
   url.searchParams.set(
     'part',
-    'id,snippet,liveStreamingDetails,contentDetails',
+    'id,snippet,liveStreamingDetails,contentDetails,status',
   );
-
   url.searchParams.set('id', videoId);
-
   url.searchParams.set(
     'fields',
-    'items(id,snippet(title),liveStreamingDetails(scheduledStartTime,actualStartTime,actualEndTime),contentDetails(duration))',
+    'items(id,snippet(title),liveStreamingDetails(scheduledStartTime,actualStartTime,actualEndTime),contentDetails(duration),status(privacyStatus))',
   );
-
   url.searchParams.set('key', apiKey);
 
   const response = await fetchWithTimeout(url, {}, 15000, 'YouTube Videos API');
@@ -824,16 +803,12 @@ async function fetchVideoInfo(videoId) {
 
   return {
     title: decodeHtmlEntities(item.snippet.title),
-
     liveBroadcastContent,
-
     scheduledStartTime: details?.scheduledStartTime || '',
-
     actualStartTime: details?.actualStartTime || '',
-
     actualEndTime: details?.actualEndTime || '',
-
     duration: item.contentDetails?.duration || 'PT0S',
+    visibility: item.status?.privacyStatus || 'unknown',
   };
 }
 
@@ -891,7 +866,6 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
       {
         headers: {
           'Accept-Language': 'ja-JP',
-
           Cookie: 'CONSENT=YES+1',
         },
       },
@@ -971,9 +945,7 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
         ?.contentMetadataViewModel?.metadataRows || [];
 
     let isMembersOnly = false;
-
     let scheduledText = '';
-
     let metadataText = '';
 
     for (const row of metadataRows) {
@@ -1009,13 +981,9 @@ async function fetchMembersOnlyUpcomingItems(channelId) {
     if (isMembersOnly && videoId && title) {
       results.push({
         videoId,
-
         title: decodeHtmlEntities(title),
-
         scheduledStartTime: parseScheduledDateJST(scheduledText),
-
         source: 'membersOnlyStreamsPage',
-
         live,
       });
     }
@@ -1052,28 +1020,23 @@ ${actionText}`;
 
   // 通常通知
   let time = '';
-
   let actionText = '';
 
   if (video.live === 'upcoming') {
     time = formatDateForMessage(video.scheduledStartTime);
-
     actionText = 'が配信開始予定ソダ～。';
   } else if (video.live === 'live') {
     time = formatDateForMessage(video.actualStartTime);
-
     actionText = 'が配信開始されたソダ～。';
   } else if (video.live === 'archive') {
     time = formatDateForMessage(
       video.actualEndTime || video.actualStartTime || video.sortTime,
     );
-
     actionText = 'が配信終了したソダ～。';
   } else {
     time = formatDateForMessage(
       video.published || video.updated || video.sortTime,
     );
-
     actionText = 'が投稿されたソダ～。';
   }
 
@@ -1123,18 +1086,13 @@ function buildEmbed(videoUrl, thumbnailUrl, workInfo) {
   return {
     author: {
       name: videoUrl,
-
       url: videoUrl,
     },
-
     url: videoUrl,
-
     description: buildWorkDescription(workInfo),
-
     image: {
       url: thumbnailUrl,
     },
-
     color: 14037892,
   };
 }
@@ -1150,11 +1108,9 @@ async function sendToWebhooks(webhookUrls, body) {
         webhookUrl,
         {
           method: 'POST',
-
           headers: {
             'content-type': 'application/json',
           },
-
           body: JSON.stringify(body),
         },
         15000,
@@ -1204,7 +1160,6 @@ async function postToDiscord(
   const webhookUrls = getWebhookUrls(channel);
 
   const videoUrl = getYouTubeVideoUrl(video.videoId);
-
   const thumbnailUrl = getYouTubeThumbnailUrl(video.videoId);
 
   const message = buildNotificationMessage(video);
@@ -1213,19 +1168,13 @@ async function postToDiscord(
 
   await sendToWebhooks(webhookUrls, {
     username: channel.channelName,
-
     avatar_url: channel.channelIconUrl || undefined,
-
     tts: false,
-
     content,
-
     flags: 4096,
-
     allowed_mentions: {
       parse: [],
     },
-
     embeds: [buildEmbed(videoUrl, thumbnailUrl, workInfo)],
   });
 
@@ -1236,26 +1185,19 @@ async function postThumbnailChangeToDiscord(channel, video, workInfo = null) {
   const webhookUrls = getWebhookUrls(channel);
 
   const videoUrl = getYouTubeVideoUrl(video.videoId);
-
   const thumbnailUrl = getYouTubeThumbnailUrl(video.videoId);
 
   const message = buildThumbnailChangeMessage(video);
 
   await sendToWebhooks(webhookUrls, {
     username: channel.channelName,
-
     avatar_url: channel.channelIconUrl || undefined,
-
     tts: false,
-
     content: message,
-
     flags: 4096,
-
     allowed_mentions: {
       parse: [],
     },
-
     embeds: [buildEmbed(videoUrl, thumbnailUrl, workInfo)],
   });
 
@@ -1266,11 +1208,8 @@ async function postThumbnailChangeToDiscord(channel, video, workInfo = null) {
 function getTodayJST() {
   const formatter = new Intl.DateTimeFormat('ja-JP', {
     timeZone: 'Asia/Tokyo',
-
     year: 'numeric',
-
     month: '2-digit',
-
     day: '2-digit',
   });
 
@@ -1304,15 +1243,10 @@ async function postAnniversaryToDiscord(channels, message) {
 
     await sendToWebhooks(webhookUrls, {
       username: channel.channelName,
-
       avatar_url: channel.channelIconUrl || undefined,
-
       tts: false,
-
       content: message,
-
       flags: 4096,
-
       allowed_mentions: {
         parse: [],
       },
@@ -1620,45 +1554,89 @@ function createVideoState(channel, item, info) {
 
   return {
     videoId: item.videoId,
-
     title: item.title || info.title,
-
     channel: channel.channelName,
-
     live: info.liveBroadcastContent,
-
     isMembersOnly: item.source === 'membersOnlyStreamsPage',
-
     published: item.published,
-
     updated: item.updated,
-
     scheduledStartTime: info.scheduledStartTime,
-
     actualStartTime: info.actualStartTime,
-
     actualEndTime: info.actualEndTime,
-
     duration: convertDurationToHHMMSS(info.duration),
-
     firstSeenAt: now,
-
     lastSeenAt: now,
-
     thumbnailHash: null,
-
     thumbnailHashUpdatedAt: null,
-
     thumbnailNotified: false,
-
     notifiedUpcoming: false,
-
     notifiedLive: false,
-
     notifiedArchive: false,
-
     notifiedVideo: false,
   };
+}
+
+function registerCompletedArchive(
+  streamsMasterById,
+  channel,
+  item,
+  info,
+  isKnownMembersOnly,
+) {
+  const title = decodeHtmlEntities(item.title || info.title || '');
+
+  // 完了済みアーカイブだけを対象にする
+  if (
+    info.liveBroadcastContent !== 'archive' ||
+    !info.actualStartTime ||
+    !info.actualEndTime
+  ) {
+    return false;
+  }
+
+  // 公開状態が明確に public / unlisted の動画のみ登録
+  if (!['public', 'unlisted'].includes(info.visibility)) {
+    console.log(
+      `[STREAMS MASTER] 除外: ${item.videoId} ` +
+        `(visibility=${info.visibility})`,
+    );
+
+    return false;
+  }
+
+  // メンバー限定と判明している動画は登録しない
+  if (
+    isKnownMembersOnly ||
+    /メン限|メンバー限定|members[\s_-]*only/i.test(title)
+  ) {
+    console.log(`[STREAMS MASTER] メンバー限定のため除外: ${item.videoId}`);
+
+    return false;
+  }
+
+  // 既存レコードは上書きしない
+  if (streamsMasterById.has(item.videoId)) {
+    return false;
+  }
+
+  const record = {
+    videoId: item.videoId,
+    title,
+    channel: channel.channelName,
+    published: item.published || '',
+    scheduledStartTime: info.scheduledStartTime || '',
+    actualStartTime: info.actualStartTime,
+    actualEndTime: info.actualEndTime,
+    duration: convertDurationToHHMMSS(info.duration),
+    visibility: info.visibility,
+    fetchedAt: new Date().toISOString(),
+  };
+
+  streamsMasterById.set(item.videoId, record);
+
+  console.log(`[STREAMS MASTER] 新規登録: ${item.videoId} | ${title}`);
+
+  return true;
 }
 
 async function main() {
@@ -1669,6 +1647,24 @@ async function main() {
   const channels = await readJson(CHANNELS_PATH, []);
 
   const videoData = await readJson(VIDEO_DATA_PATH, []);
+
+  const streamsMasterRows = await readJsonStrict(STREAMS_MASTER_PATH, []);
+
+  const streamsMasterById = new Map();
+
+  for (const row of streamsMasterRows) {
+    if (!row || typeof row.videoId !== 'string' || !row.videoId.trim()) {
+      throw new Error(
+        'streamsMaster.json に videoId のないレコードがあります。',
+      );
+    }
+
+    if (!streamsMasterById.has(row.videoId)) {
+      streamsMasterById.set(row.videoId, row);
+    }
+  }
+
+  let streamsMasterUpdated = false;
 
   const anniversaryData = await readJson(ANNIVERSARY_DATA_PATH, {
     channelAnniversary: {
@@ -1768,15 +1764,10 @@ async function main() {
         if (item.source === 'membersOnlyStreamsPage') {
           info = {
             title: item.title,
-
             liveBroadcastContent: item.live,
-
             scheduledStartTime: item.scheduledStartTime || '',
-
             actualStartTime: '',
-
             actualEndTime: '',
-
             duration: 'PT0S',
           };
         } else {
@@ -1787,6 +1778,8 @@ async function main() {
         }
 
         let existing = findExisting(videoData, item.videoId);
+
+        const wasKnownMembersOnly = existing?.isMembersOnly === true;
 
         if (!existing) {
           if (info.liveBroadcastContent === 'archive') {
@@ -1870,16 +1863,29 @@ async function main() {
         }
 
         existing.live = info.liveBroadcastContent;
-
         existing.lastSeenAt = new Date().toISOString();
-
         existing.scheduledStartTime = info.scheduledStartTime;
-
         existing.actualStartTime = info.actualStartTime;
-
         existing.actualEndTime = info.actualEndTime;
-
         existing.duration = convertDurationToHHMMSS(info.duration);
+
+        const isKnownMembersOnly =
+          wasKnownMembersOnly ||
+          existing.isMembersOnly === true ||
+          membersOnlyVideoIds.has(item.videoId) ||
+          item.source === 'membersOnlyStreamsPage';
+
+        const addedToStreamsMaster = registerCompletedArchive(
+          streamsMasterById,
+          channel,
+          item,
+          info,
+          isKnownMembersOnly,
+        );
+
+        if (addedToStreamsMaster) {
+          streamsMasterUpdated = true;
+        }
 
         // ==================================
         // サムネイルハッシュ検知
@@ -1891,7 +1897,6 @@ async function main() {
           // 初回チェック時にハッシュ保存
           if (!existing.thumbnailHash) {
             existing.thumbnailHash = newThumbnailHash;
-
             existing.thumbnailHashUpdatedAt = new Date().toISOString();
           } else if (shouldNotifyThumbnailChange(existing, newThumbnailHash)) {
             // archive または video で
@@ -1900,9 +1905,7 @@ async function main() {
             await postThumbnailChangeToDiscord(channel, existing, workInfo);
 
             existing.thumbnailNotified = true;
-
             existing.thumbnailHash = newThumbnailHash;
-
             existing.thumbnailHashUpdatedAt = new Date().toISOString();
           } else {
             // ハッシュが変わったが通知対象外
@@ -1910,7 +1913,6 @@ async function main() {
             // ハッシュだけ更新
 
             existing.thumbnailHash = newThumbnailHash;
-
             existing.thumbnailHashUpdatedAt = new Date().toISOString();
           }
         }
@@ -2067,6 +2069,21 @@ async function main() {
   await writeJson(VIDEO_DATA_PATH, videoData);
 
   console.log('videoData.json を更新しました。');
+
+  if (streamsMasterUpdated) {
+    const updatedStreamsMaster = [...streamsMasterById.values()].sort(
+      (a, b) => new Date(a.actualStartTime) - new Date(b.actualStartTime),
+    );
+
+    await writeJson(STREAMS_MASTER_PATH, updatedStreamsMaster);
+
+    console.log(
+      `streamsMaster.json を更新しました。` +
+        ` 新規登録: ${updatedStreamsMaster.length - streamsMasterRows.length} 件`,
+    );
+  } else {
+    console.log('streamsMaster.json に追加対象はありません。');
+  }
 
   if (anniversaryUpdated) {
     await writeJson(ANNIVERSARY_DATA_PATH, anniversaryData);
