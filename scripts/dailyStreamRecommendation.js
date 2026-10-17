@@ -391,10 +391,11 @@ function buildDiscordPayload(channel, selected, today) {
     tts: false,
 
     content:
-      `🎲**本日（${displayToday}）の配信アーカイブ紹介**🎲` +
+      `📺️**本日（${displayToday}）の配信アーカイブ紹介**📺️` +
       '\n\n' +
       '本日も2本、曽田すかい＠ワシソダchの' +
-      '配信アーカイブの紹介ソダ～👍️',
+      '配信アーカイブの紹介ソダ～👍️' +
+      '\n\n',
 
     // Suppress push notifications where Discord supports it.
     flags: 4096,
