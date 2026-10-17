@@ -1,0 +1,56 @@
+name: Daily Stream Recommendation
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only; do not post to Discord or update history"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-stream-recommendation
+  cancel-in-progress: false
+
+jobs:
+  recommend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Check JavaScript syntax
+        run: node --check scripts/dailyStreamRecommendation.js
+
+      - name: Send daily stream recommendations
+        run: node scripts/dailyStreamRecommendation.js
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          DISCORD_WEBHOOK_URL_FOR_ME: ${{ secrets.DISCORD_WEBHOOK_URL_FOR_ME }}
+          DISCORD_WEBHOOK_URL_FOR_SODA: ${{ secrets.DISCORD_WEBHOOK_URL_FOR_SODA }}
+          DRY_RUN: ${{ inputs.dry_run }}
+
+      - name: Commit updated random stream history
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add -- data/randomStreamHistory.json
+
+          if git diff --cached --quiet; then
+            echo "No changes to randomStreamHistory.json."
+          else
+            git commit -m "Update random stream recommendation history"
+            git push
+          fi
