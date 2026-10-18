@@ -1,4 +1,13 @@
 {
   "retentionDays": 90,
-  "sentDates": []
+  "sentDates": [
+    {
+      "dateJST": "2026-10-18",
+      "sentAt": "2026-10-18T03:00:42.684Z",
+      "videoIds": [
+        "ihtloqcAv8A",
+        "DWkYA9WeEbM"
+      ]
+    }
+  ]
 }
